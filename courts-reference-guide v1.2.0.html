@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courts - Quick Reference Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a1628 0%, #1a2844 100%);
+            font-family: 'Georgia', serif;
+            color: #d4c5a0;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(15, 25, 45, 0.9);
+            border: 2px solid #8b7355;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                padding: 40px;
+            }
+        }
+
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #8b7355;
+        }
+
+        .corner-tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .corner-br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                margin-bottom: 40px;
+            }
+        }
+
+        .title {
+            font-size: 1.5em;
+            color: #d4af37;
+            letter-spacing: 0.3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 768px) {
+            .title {
+                font-size: 3em;
+            }
+        }
+
+        .crown {
+            font-size: 0.8em;
+            margin: 0 15px;
+            color: #d4af37;
+        }
+
+        .subtitle {
+            font-size: 0.7em;
+            color: #a89968;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .subtitle {
+                font-size: 0.9em;
+            }
+        }
+
+        .author {
+            font-size: 0.6em;
+            color: #d4c5a0;
+            letter-spacing: 0.1em;
+        }
+
+        @media (min-width: 768px) {
+            .author {
+                font-size: 0.7em;
+            }
+        }
+
+        .accordion {
+            margin-bottom: 15px;
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .accordion {
+                margin-bottom: 20px;
+            }
+        }
+
+        .accordion-header {
+            background: rgba(20, 35, 60, 0.8);
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+            border-bottom: 1px solid #4a4a4a;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .accordion-header {
+                padding: 20px;
+            }
+        }
+
+        .accordion-header:hover {
+            background: rgba(30, 45, 70, 0.9);
+        }
+
+        .accordion-title {
+            font-size: 1em;
+            color: #d4af37;
+            font-weight: normal;
+            text-align: center;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .accordion-title {
+                font-size: 1.3em;
+            }
+        }
+
+        .accordion-icon {
+            color: #d4af37;
+            transition: transform 0.3s;
+            position: absolute;
+            right: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .accordion-icon {
+                right: 20px;
+            }
+        }
+
+        .accordion.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(10, 20, 40, 0.6);
+        }
+
+        .accordion.active .accordion-content {
+            max-height: 2000px;
+        }
+
+        .content-inner {
+            padding: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .content-inner {
+                padding: 30px;
+            }
+        }
+
+        .content-inner.no-padding {
+            padding: 0;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .setup-grid {
+                gap: 15px;
+            }
+        }
+
+        .setup-item {
+            background: rgba(30, 45, 70, 0.5);
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            padding: 15px 10px;
+            text-align: center;
+            color: #d4c5a0;
+            font-size: 0.9em;
+        }
+
+        @media (min-width: 768px) {
+            .setup-item {
+                padding: 20px;
+                font-size: 1em;
+            }
+        }
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .turn-grid {
+                gap: 15px;
+            }
+        }
+
+        .turn-card {
+            background: rgba(30, 45, 70, 0.5);
+            border: 1px solid #4a4a4a;
+            border-radius: 4px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .turn-card {
+                padding: 20px;
+            }
+        }
+
+        .turn-number {
+            color: #d4c5a0;
+            font-size: 0.85em;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .turn-number::first-letter {
+            color: #d4af37;
+        }
+
+        .turn-desc {
+            color: #a89968;
+            font-size: 0.7em;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 768px) {
+            .turn-number {
+                font-size: 1.1em;
+                margin-bottom: 5px;
+            }
+            
+            .turn-desc {
+                font-size: 0.9em;
+            }
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        @media (min-width: 640px) {
+            .table {
+                font-size: 1em;
+            }
+        }
+
+        .table th {
+            background: rgba(30, 45, 70, 0.5);
+            padding: 12px 8px;
+            text-align: center;
+            color: #d4af37;
+            border-bottom: 2px solid #4a4a4a;
+            font-weight: normal;
+            font-size: 1em;
+        }
+
+        @media (min-width: 640px) {
+            .table th {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+
+        .table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #4a4a4a;
+            color: #d4c5a0;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .table td {
+                padding: 15px;
+            }
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .suite-icon {
+            font-size: 1.3em;
+        }
+
+        .effect-gain {
+            color: #5cb85c;
+        }
+
+        .effect-lose {
+            color: #d9534f;
+        }
+
+        .cost-positive {
+            color: #5cb85c;
+        }
+
+        .cost-negative {
+            color: #d9534f;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #4a4a4a;
+            color: #a89968;
+            font-size: 0.65em;
+            letter-spacing: 0.05em;
+            line-height: 1.4;
+        }
+
+        @media (min-width: 768px) {
+            .footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                font-size: 0.9em;
+                letter-spacing: 0.1em;
+            }
+        }
+
+        .footer-icon {
+            margin: 0 5px;
+        }
+
+        @media (min-width: 640px) {
+            .footer-icon {
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="header">
+            <h1 class="title"><span class="crown">♔</span>COURTS<span class="crown">♔</span></h1>
+            <p class="subtitle">Quick Reference Guide</p>
+            <p class="author">Sam McGorry</p>
+        </div>
+
+        <!-- Section 1: Setup -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="accordion-title">SETUP</h2>
+                <span class="accordion-icon">▲</span>
+            </div>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <div class="setup-grid">
+                        <div class="setup-item">6 ⚜️ (max)</div>
+                        <div class="setup-item">3 🪙</div>
+                        <div class="setup-item">3 cards 🃏</div>
+                        <div class="setup-item">Elect Lead player 👑</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Turn Structure -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="accordion-title">TURN</h2>
+                <span class="accordion-icon">▲</span>
+            </div>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <div class="turn-grid">
+                        <div class="turn-card">
+                            <div class="turn-number">1. Offer</div>
+                            <div class="turn-desc">Play a card face-down</div>
+                        </div>
+                        <div class="turn-card">
+                            <div class="turn-number">2. Decide</div>
+                            <div class="turn-desc">Target chooses response</div>
+                        </div>
+                        <div class="turn-card">
+                            <div class="turn-number">3. Reveal</div>
+                            <div class="turn-desc">Flip card & resolve</div>
+                        </div>
+                        <div class="turn-card">
+                            <div class="turn-number">4. Assassinate</div>
+                            <div class="turn-desc">Optional: pay 13 to eliminate</div>
+                        </div>
+                        <div class="turn-card">
+                            <div class="turn-number">5. Draw</div>
+                            <div class="turn-desc">Draw back to hand size</div>
+                        </div>
+                        <div class="turn-card">
+                            <div class="turn-number">6. Income</div>
+                            <div class="turn-desc">Collect 1 gold from bank</div>
+                        </div>
+                        <div class="turn-card" style="grid-column: 1 / -1;">
+                            <div class="turn-number">7. Pass</div>
+                            <div class="turn-desc">Pass lead to next player</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Card Suites & Effects -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="accordion-title">CARDS</h2>
+                <span class="accordion-icon">▲</span>
+            </div>
+            <div class="accordion-content">
+                <div class="content-inner no-padding">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Card</th>
+                                <th>Suite</th>
+                                <th>Effect</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>The Dagger</td>
+                                <td class="suite-icon">♠️</td>
+                                <td><span class="effect-lose">Lose 3 ⚜️</span></td>
+                            </tr>
+                            <tr>
+                                <td>The Toast</td>
+                                <td class="suite-icon">♥️</td>
+                                <td><span class="effect-gain">Gain 1 ⚜️</span></td>
+                            </tr>
+                            <tr>
+                                <td>The Gift</td>
+                                <td class="suite-icon">♦️</td>
+                                <td><span class="effect-gain">Gain 2 🪙</span></td>
+                            </tr>
+                            <tr>
+                                <td>The Theft</td>
+                                <td class="suite-icon">♣️</td>
+                                <td><span class="effect-lose">Lose 2 🪙<br>(to player)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Decide Choices & Costs -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <h2 class="accordion-title">ACTIONS</h2>
+                <span class="accordion-icon">▲</span>
+            </div>
+            <div class="accordion-content">
+                <div class="content-inner no-padding">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Cost</th>
+                                <th>Effect</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Accept</td>
+                                <td><span class="cost-positive">+1 🪙</span></td>
+                                <td>Keep the card</td>
+                            </tr>
+                            <tr>
+                                <td>Refuse</td>
+                                <td><span class="cost-negative">-1 ⚜️</span></td>
+                                <td>Return the card</td>
+                            </tr>
+                            <tr>
+                                <td>Spy</td>
+                                <td><span class="cost-negative">-2 🪙</span></td>
+                                <td>Expose the card</td>
+                            </tr>
+                            <tr>
+                                <td>Bribe</td>
+                                <td><span class="cost-negative">-1 🪙<br>(to player)</span></td>
+                                <td>Player reviews card, you may Expose</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span class="footer-icon">♠️</span>
+            <span class="footer-icon">♥️</span>
+            MAY FORTUNE FAVOR THE BOLD
+            <span class="footer-icon">♦️</span>
+            <span class="footer-icon">♣️</span>
+        </div>
+    </div>
+
+    <script>
+        function toggleAccordion(header) {
+            const accordion = header.parentElement;
+            accordion.classList.toggle('active');
+            
+            // Scroll into view when expanded
+            if (accordion.classList.contains('active')) {
+                setTimeout(() => {
+                    accordion.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
