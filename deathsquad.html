@@ -390,11 +390,11 @@
 
 <main>
         <div class="accordion-group">
-            <div class="accordion-header" onclick="toggleAccordion('unit-roster-content', 'accordion-toggle-icon-roster')">
+            <div class="accordion-header collapsed" onclick="toggleAccordion('unit-roster-content', 'accordion-toggle-icon-roster')">
                 Unit Roster & Weapon Rules
-                <span class="accordion-toggle-icon" id="accordion-toggle-icon-roster">▼</span>
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-roster">►</span>
             </div>
-            <div class="accordion-content" id="unit-roster-content"> 
+            <div class="accordion-content collapsed" id="unit-roster-content"> 
                 
                 <table class="data-table unit-table">
                     <thead>
@@ -810,12 +810,12 @@
         
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Unit Roster: Ensure the first accordion is open
+            // 1. Unit Roster: Ensure the first accordion is closed
             const rosterContent = document.getElementById('unit-roster-content');
             const rosterIcon = document.getElementById('accordion-toggle-icon-roster');
-            rosterContent.style.maxHeight = 'none';
+            rosterContent.style.maxHeight = '0px';
             rosterContent.style.padding = '15px';
-            rosterIcon.textContent = '▼';
+            rosterIcon.textContent = '►';
             rosterIcon.closest('.accordion-header').classList.remove('collapsed');
 
             // 2. Abilities: Ensure the second accordion is closed
