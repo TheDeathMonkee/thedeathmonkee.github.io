@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Death Squad v1.6</title>
+    <style>
+        /*
+        Brand Colors:
+        60% White (#FFFFFF)
+        30% Dark Blue (#24285c)
+        10% Light Blue (#b4e5e5)
+        */
+
+        :root {
+            --color-white: #FFFFFF;
+            --color-dark-blue: #24285c;
+            --color-light-blue: #b4e5e5;
+            --color-text: #333;
+            --color-highlight-row: #94d0d0; /* A darker tint of light blue for active rows */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #94d0d0; /* Keeping as provided in the latest file */
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            width: 100%;
+            background-color: var(--color-dark-blue);
+            color: var(--color-white);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- Honeycomb Pattern Background --- */
+        .honeycomb-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+            background-color: var(--color-white);
+            background-image:
+                linear-gradient(210deg, var(--color-light-blue) 12%, transparent 12.5%, transparent 87.5%, var(--color-light-blue) 88%),
+                linear-gradient(150deg, var(--color-light-blue) 12%, transparent 12.5%, transparent 87.5%, var(--color-light-blue) 88%),
+                linear-gradient(90deg, var(--color-light-blue) 12%, transparent 12.5%, transparent 87.5%, var(--color-light-blue) 88%);
+            background-size: 40px 69.28px;
+            background-position: 0 0;
+        }
+
+        /* --- Main Content Area & Accordion --- */
+        main {
+            padding: 20px;
+            width: 90%;
+            max-width: 1200px;
+            z-index: 5;
+        }
+
+        .accordion-group {
+            margin-top: 30px;
+            border: 2px solid var(--color-dark-blue);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(36, 40, 92, 0.4);
+            background-color: var(--color-white);
+        }
+
+        .accordion-header {
+            background-color: var(--color-dark-blue);
+            color: var(--color-white);
+            padding: 15px;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-header:hover {
+            background-color: #3b428d;
+        }
+
+		.accordion-content {
+            /* max-height is now managed by JS, but starts at 'none' when open */
+			max-height: none; 
+			overflow: hidden;
+			padding: 15px;
+			background-color: var(--color-white);
+			transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+		}
+
+		/* Removed !important from max-height here for JS control */
+		.accordion-content.collapsed {
+			max-height: 0; 
+			padding: 0 15px;
+		}
+        
+        .accordion-toggle-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.collapsed .accordion-toggle-icon {
+            transform: rotate(0deg);
+        }
+        
+        /* --- Table Styling (Shared) --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            text-align: left;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+
+        .data-table th, .data-table td {
+            padding: 10px 15px;
+            border: 1px solid var(--color-light-blue);
+        }
+
+        .data-table thead th {
+            background-color: var(--color-light-blue);
+            color: var(--color-dark-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            border-bottom: 3px solid var(--color-dark-blue);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f0f8ff;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--color-light-blue);
+        }
+        
+        /* --- UNIT TABLE SPECIFIC STYLING --- */
+        .unit-table {
+            cursor: pointer;
+        }
+        
+        /* Set specific widths for the unit stats columns */
+        .unit-table thead th:first-child {
+            width: 20%; /* Unit Role column remains wide and left-aligned */
+            text-align: left;
+        }
+        
+        /* Center align all header text for stat columns */
+        .unit-table thead th:not(:first-child) {
+            width: 10%; /* Make remaining 8 columns equal width (8 * 10% = 80%) */
+            text-align: center; 
+        }
+
+        /* Center align all body cell text for stat columns */
+        .unit-table tbody td:not(:first-child) {
+            text-align: center;
+        }
+
+        .unit-table tbody tr.active-row {
+            background-color: var(--color-highlight-row) !important;
+            box-shadow: 0 0 5px rgba(36, 40, 92, 0.5) inset;
+            border: 1px solid var(--color-dark-blue);
+        }
+
+        .unit-table .role-col {
+            font-weight: bold;
+            color: var(--color-dark-blue);
+            text-align: left;
+        }
+        
+        /* --- ABILITIES TABLE SPECIFIC STYLING (Adjusted widths) --- */
+        .ability-table thead th:nth-child(1) { width: 15%; } /* Ability Name/Item Name */
+        .ability-table thead th:nth-child(2) { width: 10%; text-align: center; } /* Type/AP Cost */
+        .ability-table thead th:nth-child(3) { width: 35%; } /* Conditions/Targeting */
+        .ability-table thead th:nth-child(4) { width: 40%; } /* Simplified Effect/Effects */
+        
+        .ability-table tbody td:nth-child(2) {
+            text-align: center; /* Center the Type/AP Cost column */
+        }
+		
+        .ability-table tbody td:nth-child(1) {
+            font-weight: bold; /* Bold the Name column */
+        }
+        
+        /* --- Open Cache Table Specific Styling --- */
+        .cache-table {
+            table-layout: fixed; /* Ensures columns are respected */
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .cache-table thead th {
+            text-align: center;
+        }
+        .cache-table tbody tr td:first-child {
+            width: 25%; /* Give the roll column a fixed width */
+            text-align: center;
+            font-weight: bold;
+        }
+        /* Customizing sub-rows for the second roll */
+        .cache-table .sub-row {
+            background-color: #f0f8ff; 
+        }
+        .cache-table .sub-row td:first-child {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+
+        /* --- Dynamic Rules Display --- */
+        #special-rules-display {
+            border: 1px solid var(--color-dark-blue);
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 80px;
+            background-color: #f0f8ff;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #special-rules-display h3 {
+            margin-top: 0;
+            color: var(--color-dark-blue);
+            border-bottom: 2px solid var(--color-light-blue);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        
+        #special-rules-content ul {
+            padding-left: 0; 
+            margin: 0;
+            list-style-type: none; 
+        }
+        
+        #special-rules-content li {
+            margin-bottom: 8px;
+            padding-left: 2em; 
+            text-indent: 0; 
+            line-height: 1.3;
+            position: relative;
+        }
+        
+        #special-rules-content li:before {
+            content: "•";
+            color: var(--color-dark-blue);
+            font-weight: bold;
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.5em; 
+            text-align: right;
+        }
+        
+        /* Outer list in terrain/cache accordion (no bullets, spaced sections) */
+        #terrain-movement-content > ul,
+        #open-cache-content > ul {
+            list-style-type: none; 
+            padding-left: 0;
+            margin: 0;
+        }
+
+        #terrain-movement-content > ul > li,
+        #open-cache-content > ul > li {
+            margin-bottom: 20px; 
+            padding-left: 0;
+            position: static;
+        }
+
+        #terrain-movement-content > ul > li::before,
+        #open-cache-content > ul > li::before {
+            content: none;
+        }
+        
+        /* Style for nested lists in the accordion contents */
+        .accordion-content ul ul {
+            margin-top: 5px;
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+        /* Further nested lists (e.g., inside the d6 roll in Open Cache) */
+        .accordion-content ul ul ul {
+            padding-left: 20px;
+            list-style-type: circle;
+        }
+
+        .accordion-content ul ul li {
+            padding-left: 0;
+            margin-bottom: 4px;
+            position: static;
+        }
+        .accordion-content ul ul li::before {
+            content: none;
+        }
+
+		/* ================================
+		   MOBILE OPTIMIZATION FIXES
+		   ================================ */
+		@media (max-width: 768px) {
+			.data-table {
+				font-size: 0.75em;
+				table-layout: auto;
+				display: block;
+				overflow-x: auto;
+				white-space: nowrap;
+			}
+
+			.data-table th,
+			.data-table td {
+				padding: 6px 10px;
+			}
+
+			/* Reduce label widths for ability & cache tables */
+			.ability-table thead th:nth-child(1),
+			.cache-table thead th:nth-child(1) {
+				width: auto !important;
+			}
+
+			/* Unit table: let the first column shrink */
+			.unit-table thead th:first-child {
+				width: auto;
+			}
+
+			/* Prevent text wrapping in stat columns */
+			.unit-table th,
+			.unit-table td {
+				white-space: nowrap;
+			}
+
+			/* Prevent squeezed accordions */
+			.accordion-content {
+				padding: 10px !important;
+			}
+
+			/* Make headers smaller on mobile */
+			h1 {
+				font-size: 1.7em;
+				letter-spacing: 1px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.data-table {
+				font-size: 0.68em;
+			}
+
+			header {
+				padding: 12px 0;
+			}
+
+			.accordion-header {
+				font-size: 1em;
+				padding: 10px;
+			}
+		}
+  
+    </style>
+</head>
+<body>
+
+    <div class="honeycomb-background"></div>
+
+    <header>
+        <h1>Death Squad v1.6</h1>
+    </header>
+
+<main>
+        <div class="accordion-group">
+            <div class="accordion-header" onclick="toggleAccordion('unit-roster-content', 'accordion-toggle-icon-roster')">
+                Unit Roster & Weapon Rules
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-roster">▼</span>
+            </div>
+            <div class="accordion-content" id="unit-roster-content"> 
+                
+                <table class="data-table unit-table">
+                    <thead>
+                        <tr>
+                            <th>Unit Role</th>
+                            <th>Attack</th>
+                            <th>Skill</th>
+                            <th>Damage</th>
+                            <th>Movement</th>
+                            <th>AP</th>
+                            <th>Defense</th>
+                            <th>Save</th>
+                            <th>HP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr onclick="displayRules('Trooper')">
+                            <td class="role-col">Trooper</td>
+                            <td>4</td>
+                            <td>3+</td>
+                            <td>3/4</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td>12</td>
+                        </tr>
+                        <tr onclick="displayRules('Leader')">
+                            <td class="role-col">Leader</td>
+                            <td>4</td>
+                            <td><strong>2+</strong></td>
+                            <td>3/4</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td><strong>15</strong></td>
+                        </tr>
+                        <tr onclick="displayRules('Shotgunner')">
+                            <td class="role-col">Shotgunner</td>
+                            <td><strong>5</strong></td>
+                            <td>3+</td>
+                            <td>3/4</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td>12</td>
+                        </tr>
+                        <tr onclick="displayRules('Submachine Gunner')">
+                            <td class="role-col">Submachine Gunner</td>
+                            <td>4</td>
+                            <td>3+</td>
+                            <td><strong>2/2</strong></td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td>12</td>
+                        </tr>
+                        <tr onclick="displayRules('Grenadier')">
+                            <td class="role-col">Grenadier</td>
+                            <td>4</td>
+                            <td>3+</td>
+                            <td><strong>2/5</strong></td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td>12</td>
+                        </tr>
+                        <tr onclick="displayRules('Marksman')">
+                            <td class="role-col">Marksman</td>
+                            <td>4</td>
+                            <td>3+</td>
+                            <td>3/4</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>3</td>
+                            <td>3+</td>
+                            <td>12</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div id="special-rules-display">
+                    <h3 id="rules-unit-name"></h3>
+                    <div id="special-rules-content">
+                        </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="accordion-group">
+            <div class="accordion-header collapsed" onclick="toggleAccordion('tactical-abilities-content', 'accordion-toggle-icon-abilities')">
+                Tactical Abilities Summary
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-abilities">►</span>
+            </div>
+            <div class="accordion-content collapsed" id="tactical-abilities-content">
+                <table class="data-table ability-table">
+                    <thead>
+                        <tr>
+                            <th>Ability Name</th>
+                            <th>Type</th>
+                            <th>Conditions (When to Use)</th>
+                            <th>Simplified Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Aim</td>
+                            <td>🎯 Shoot</td>
+                            <td>Used with a <strong>Shoot attack</strong>.<br>Full effect only if unit is <strong>stationary</strong> (no Dive, Jump, etc.).</td>
+                            <td>Retain <strong>1 hit die</strong>.<br>If stationary, <strong>reroll all other dice</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Overcharge</td>
+                            <td>🎯 Shoot</td>
+                            <td>Used with a <strong>Shoot attack</strong>.</td>
+                            <td>Defender rolls <strong>2 fewer defense dice</strong>.<br>After damage, roll d6: <strong>1-3</strong> means you take <strong>3 damage</strong> (and repeat test).</td>
+                        </tr>
+                        <tr>
+                            <td>Point Blank</td>
+                            <td>🎯 Shoot</td>
+                            <td>Target is <strong>4 inches or less</strong> away.</td>
+                            <td>Roll <strong>1 additional die</strong>.<br>Retain <strong>1 hit die</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Reckless Attack</td>
+                            <td>⚔️ Melee</td>
+                            <td>Used with a <strong>Melee attack</strong>.<br>You <strong>cannot parry</strong>.</td>
+                            <td>Retain <strong>1 hit die</strong>.<br>Defender rolls <strong>1 less defense die</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Overwatch</td>
+                            <td>🎯 Shoot</td>
+                            <td>Use only if you <strong>will not Shoot or Fight</strong> this turn.<br>Spends <strong>1 AP</strong> to activate.<br><strong>Cancelled if you Dive</strong>.</td>
+                            <td><strong>Reserve</strong> your Shoot action.<br>Trigger a <strong>free standard Shoot attack</strong> when an enemy moves into or makes an action in your line of sight.</td>
+                        </tr>
+                        <tr>
+                            <td>Hunker</td>
+                            <td>🛡️ Defense</td>
+                            <td>Used when <strong>1 inch from cover</strong>.</td>
+                            <td>Until next activation, <strong>retain an additional successful die</strong> when defending against Shoot attacks.<br><strong>Vantage is ignored</strong>.<br>You <strong>cannot Shoot/Overwatch</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Spot</td>
+                            <td>💡 Utility</td>
+                            <td>Target enemy is in <strong>line of sight</strong>.<br>Bonus applies only to <strong>other friendly units</strong>.</td>
+                            <td><strong>Mark an enemy</strong>.<br>Friendly units get to <strong>reroll 1 failed hit die</strong> against the target.<br>Gain <strong>1 TP</strong> if the target is eliminated.</td>
+                        </tr>
+                        <tr>
+                            <td>Dash</td>
+                            <td>🏃 Movement</td>
+                            <td>Unit is <strong>not engaged</strong>.</td>
+                            <td>Move an <strong>additional 3 inches</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Double Dash</td>
+                            <td>🏃 Movement</td>
+                            <td>Unit is <strong>not engaged</strong>.<br>Spends <strong>2 AP</strong> to activate.<br><strong>Cannot Shoot</strong> this turn.</td>
+                            <td>Move an <strong>additional 3 inches</strong> (two Dashes).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="accordion-group">
+            <div class="accordion-header collapsed" onclick="toggleAccordion('equipment-items-content', 'accordion-toggle-icon-equipment')">
+                Equipment/Items Summary
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-equipment">►</span>
+            </div>
+            <div class="accordion-content collapsed" id="equipment-items-content">
+                <table class="data-table ability-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Action Point Cost</th>
+                            <th>Conditions/Targeting</th>
+                            <th>Effects</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Impact Grenade</td>
+                            <td><strong>1 AP</strong></td>
+                            <td>Target an area within the current unit's line of sight and within <strong>6 inches</strong>.</td>
+                            <td>Deal <strong>3 damage</strong> to the target unit and all other units within <strong>2 inches</strong> of the target.</td>
+                        </tr>
+                        <tr>
+                            <td>Stun Grenade</td>
+                            <td><strong>1 AP</strong></td>
+                            <td>Target an area within the current unit's line of sight and within <strong>6 inches</strong>.</td>
+                            <td>The target and all other units within <strong>2 inches</strong> are <strong>stunned</strong> until the end of their next activation.<br><strong>Stunned</strong> units cannot normal move (they can still <strong>Dash</strong> and <strong>Dive</strong>).</td>
+                        </tr>
+                        <tr>
+                            <td>Heal Pack</td>
+                            <td><strong>1 AP</strong></td>
+                            <td>Can heal self or a friendly unit within <strong>1 inch</strong>.<br>Can only be used if the unit has <strong>not and will not move</strong> this turn.</td>
+                            <td>The unit heals <strong>3 + 1d6 Hit Points</strong>.</td>
+                        </tr>
+                        <tr>
+                            <td>Stim Pack</td>
+                            <td><strong>1 AP</strong></td>
+                            <td>None (used by the current unit).</td>
+                            <td>Gain <strong>two action points</strong>.<br>This turn, the unit can use a <strong>Dash</strong> without paying a tactical point.<br>Movement restrictions are lifted for this unit’s turn (e.g., can use Aim/Marksman reroll and move, can shoot and double dash, can use Heal Pack and move, can move while stunned).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="accordion-group">
+            <div class="accordion-header collapsed" onclick="toggleAccordion('terrain-movement-content', 'accordion-toggle-icon-terrain')">
+                Moving through Terrain
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-terrain">►</span>
+            </div>
+            <div class="accordion-content collapsed" id="terrain-movement-content">
+                <ul>
+                    <li>
+                        <strong>Climbing</strong>
+                        <ul>
+                            <li>You can <strong>climb up onto cover</strong> during your <strong>move phase</strong> as long as the cover is within the range of your movement and the point of cover is no higher than <strong>4 inches</strong>.</li>
+                            <li>If the cover is <strong>2 inches or less</strong> in height: Spend <strong>1 action</strong> to climb.</li>
+                            <li>If the cover is <strong>4 inches or less</strong> in height: Spend <strong>2 actions</strong> to climb.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Descending</strong>
+                        <ul>
+                            <li>When on a unit is placed upon a cover piece you can <strong>descend down</strong> as part of your <strong>move phase</strong>. No damage is taken regardless of height.</li>
+                            <li>Spend <strong>1 action</strong> to descend (for all heights).</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Jumping</strong>
+                        <ul>
+                            <li>You can <strong>pass over cover</strong> during your <strong>move phase</strong> and is no higher than <strong>2 inches</strong>.</li>
+                            <li>If the cover is <strong>2 inches or less</strong> in height: Spend <strong>1 action</strong> to jump over.</li>
+                            <li>Note: To **Jump**, the obstacle must be no higher than **2 inches**.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Doors</strong>
+                        <ul>
+                            <li>Doors can be passed through <strong>without any cost</strong>.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="accordion-group">
+            <div class="accordion-header collapsed" onclick="toggleAccordion('open-cache-content', 'accordion-toggle-icon-cache')">
+                Open Cache
+                <span class="accordion-toggle-icon" id="accordion-toggle-icon-cache">►</span>
+            </div>
+            <div class="accordion-content collapsed" id="open-cache-content">
+                <table class="data-table cache-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Roll (1D6)</th>
+                            <th style="width: 75%;">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Impact grenade</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Stun Grenade</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Heal Pack</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Stim Pack</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Gain 2 Tactical points</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Random Gun (roll again):</td>
+                        </tr>
+                        <tr class="sub-row">
+                            <td>1-2</td>
+                            <td>Shotgunner</td>
+                        </tr>
+                        <tr class="sub-row">
+                            <td>3-4</td>
+                            <td>Sub-Machine Gunner</td>
+                        </tr>
+                        <tr class="sub-row">
+                            <td>5</td>
+                            <td>Marksman</td>
+                        </tr>
+                        <tr class="sub-row">
+                            <td>6</td>
+                            <td>Grenadier</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </main>
+
+    <script>
+        // Data structure to hold the unit rules
+        const unitRulesData = {
+            'Trooper': '<p>This unit has no special rules.</p>',
+            'Leader': '<p>This unit has no special rules related to its weapon profile.</p>',
+            'Shotgunner': '<ul><li>Maximum range <strong>12 inches</strong>.</li><li><strong>Retain 1 hit</strong> when within <strong>6 inch range</strong> of the target.</li></ul>',
+            'Submachine Gunner': '<ul><li>Can shoot a <strong>second time for 0 AP</strong>.</li><li>The second shoot action can be used for <strong>Overwatch</strong>.</li><li>Effects from tactical abilities apply to both attacks <strong>only if the target remains the same</strong>.</li><li>When using Overcharge against a single roll, roll the Hot roll <strong>once</strong>.</li><li>Note: If a defender Dives and moves, <strong>recheck line of sight, cover, and range</strong> for the second attack.</li></ul>',
+            'Grenadier': '<ul><li>Shoot attacks hit all other units within <strong>2 inches of the target</strong> (make a new attack roll for each additional target).</li></ul>',
+            'Marksman': '<ul><li><strong>Retain 1 hit</strong> for all Shoot attacks.</li><li>If you haven\'t moved yet: You may <strong>reroll all other dice</strong> (Dive, Descend, Jump, and Climb all count as movement).</li><li>Stacks with the Aim tactical ability (2 rerolls & retains 2 hits).</li></ul>'
+        };
+
+        // Function to handle the main accordion open/close (now with reliable scrollHeight measurement)
+        function toggleAccordion(contentId, iconId) {
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            const header = icon.closest('.accordion-header');
+
+            // Check if accordion is currently collapsed/closed
+            const isClosed = content.style.maxHeight === "" || content.style.maxHeight === "0px";
+            
+            // Clear any potential previous transition end listeners
+            const oldHandler = content.onTransitionEndHandler;
+            if (oldHandler) {
+                content.removeEventListener('transitionend', oldHandler);
+            }
+
+
+            if (isClosed) {
+                // OPENING
+                
+                // 1. Temporarily remove transitions to measure scrollHeight accurately
+                content.style.transition = 'none'; 
+                content.style.maxHeight = 'none'; // Allow it to expand fully to calculate height
+                const scrollHeight = content.scrollHeight;
+                
+                // 2. Immediately reset maxHeight to 0 and force reflow (to start the transition from a closed state)
+                content.style.maxHeight = '0px'; 
+                void content.offsetWidth; // Force reflow
+                
+                // 3. Start transition to the measured height
+                content.style.transition = 'max-height 0.4s ease-in-out, padding 0.4s ease-in-out';
+                content.style.maxHeight = scrollHeight + "px";
+                content.style.padding = "15px";
+
+                header.classList.remove('collapsed');
+                icon.textContent = "▼";
+                
+                // Cleanup: Clear max-height after opening transition to allow for dynamic content resizing
+                const handler = function() {
+                    // Only reset if it didn't immediately close while opening
+                    if (content.style.maxHeight !== '0px') {
+                        content.style.maxHeight = 'none';
+                    }
+                    content.removeEventListener('transitionend', handler);
+                };
+                content.onTransitionEndHandler = handler;
+                content.addEventListener('transitionend', handler);
+                
+            } else {
+                // CLOSING
+                
+                // 1. Set max-height to current actual height to prepare for transition to 0
+                // If it was 'none', scrollHeight is used to set the pixel height before transition
+                content.style.maxHeight = content.scrollHeight + "px"; 
+                content.style.padding = "15px";
+                
+                // 2. Force reflow/repaint
+                void content.offsetWidth;
+                
+                // 3. Transition max-height to 0, and update padding
+                content.style.maxHeight = "0px";
+                content.style.padding = "0 15px";
+                header.classList.add('collapsed');
+                icon.textContent = "►";
+            }
+        }
+
+        // Function to display rules when a row is clicked (or called on load)
+        function displayRules(unitName) {
+            const rulesName = document.getElementById('rules-unit-name');
+            const rulesContent = document.getElementById('special-rules-content');
+            const allRows = document.querySelectorAll('.unit-table tbody tr');
+            
+            const ruleHTML = unitRulesData[unitName] || '<p>No specific rules found for this unit.</p>';
+            
+            // Find the row element
+            const clickedRow = [...allRows].find(r => r.textContent.includes(unitName));
+
+            // Clear active state from all rows and set the clicked row as active
+            allRows.forEach(row => row.classList.remove('active-row'));
+            if (clickedRow) {
+                 clickedRow.classList.add('active-row');
+            }
+            
+            // Populate the rules section
+            rulesName.textContent = `${unitName} Special Rules`;
+            rulesContent.innerHTML = ruleHTML;
+        }
+        
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Unit Roster: Ensure the first accordion is open
+            const rosterContent = document.getElementById('unit-roster-content');
+            const rosterIcon = document.getElementById('accordion-toggle-icon-roster');
+            rosterContent.style.maxHeight = 'none';
+            rosterContent.style.padding = '15px';
+            rosterIcon.textContent = '▼';
+            rosterIcon.closest('.accordion-header').classList.remove('collapsed');
+
+            // 2. Abilities: Ensure the second accordion is closed
+            const abilitiesContent = document.getElementById('tactical-abilities-content');
+            const abilitiesIcon = document.getElementById('accordion-toggle-icon-abilities');
+            abilitiesContent.style.maxHeight = '0px';
+            abilitiesContent.style.padding = '0 15px';
+            abilitiesIcon.textContent = '►';
+            abilitiesIcon.closest('.accordion-header').classList.add('collapsed');
+
+            // 3. Equipment/Items: Ensure the third accordion is closed
+            const equipmentContent = document.getElementById('equipment-items-content');
+            const equipmentIcon = document.getElementById('accordion-toggle-icon-equipment');
+            equipmentContent.style.maxHeight = '0px';
+            equipmentContent.style.padding = '0 15px';
+            equipmentIcon.textContent = '►';
+            equipmentIcon.closest('.accordion-header').classList.add('collapsed');
+
+            // 4. Terrain Movement: Ensure the fourth accordion is closed
+            const terrainContent = document.getElementById('terrain-movement-content');
+            const terrainIcon = document.getElementById('accordion-toggle-icon-terrain');
+            terrainContent.style.maxHeight = '0px';
+            terrainContent.style.padding = '0 15px';
+            terrainIcon.textContent = '►';
+            terrainIcon.closest('.accordion-header').classList.add('collapsed');
+
+            // 5. Open Cache: Ensure the fifth accordion is closed
+            const cacheContent = document.getElementById('open-cache-content');
+            const cacheIcon = document.getElementById('accordion-toggle-icon-cache');
+            cacheContent.style.maxHeight = '0px';
+            cacheContent.style.padding = '0 15px';
+            cacheIcon.textContent = '►';
+            cacheIcon.closest('.accordion-header').classList.add('collapsed');
+            
+            // 6. Select the Trooper row and display its rules by default
+            const defaultUnit = 'Trooper';
+            displayRules(defaultUnit);
+        });
+    </script>
+
+</body>
+</html>

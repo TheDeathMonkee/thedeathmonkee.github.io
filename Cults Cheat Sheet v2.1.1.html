@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CULTS - Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 1. COLOR VARIABLE DEFINITIONS */
+        :root {
+            --color-main: #000000;
+            --color-secondary: #ae892eff;
+            --color-accent1: #a51e22; /* Red */
+            --color-accent2: #8e72b1; /* Purple */
+            --text-color: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Solid Main color */
+            background-color: var(--color-main);
+            color: var(--text-color);
+            padding: 20px 10px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* HEADER STYLES */
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        /* .title-icon color now applied via inline style */
+        
+        .subtitle {
+            font-size: 1em;
+            color: #aaa;
+            font-style: italic;
+        }
+        
+        .author-line {
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 5px;
+        }
+        /* END HEADER STYLES */
+
+        .accordion {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .accordion-header {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Solid Secondary color for Accordion Header background */
+        .cults-theme {
+            background-color: var(--color-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .accordion-header:hover {
+            filter: brightness(1.2);
+        }
+
+        .accordion-header::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+            /* Retaining !important here as inline styles cannot target pseudo-elements */
+            color: var(--color-main) !important; 
+        }
+
+        .accordion-header.active::after {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            /* max-height: 0 is fine, but we will manage height explicitly in JS for iOS compatibility */
+            max-height: 0;
+            overflow: hidden;
+            /* Transitioning max-height to ensure smooth open/close */
+            transition: max-height 0.3s ease; 
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* The .active class will be managed by JS using precise pixel values */
+        /* .accordion-content.active {
+            max-height: 2000px;
+        } */
+
+
+        /* General list styling */
+        .setup-list {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .setup-list ol, .setup-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .setup-list li {
+            padding: 10px 0;
+            font-size: 0.95em;
+            line-height: 1.5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setup-list li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Definition list styling */
+        .definition-list {
+            padding: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .definition-list dt {
+            font-weight: bold;
+            color: var(--color-accent1); /* Highlight for terms (Accent 1) */
+            margin-top: 10px;
+            padding-bottom: 3px;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
+        }
+        
+        /* FLASH ATTENTION STYLES - Double Flash */
+        @keyframes flash {
+            0% { color: var(--color-accent1); }
+            25% { color: var(--text-color); }
+            50% { color: var(--color-accent1); }
+            75% { color: var(--text-color); }
+            100% { color: var(--color-accent1); }
+        }
+
+        .flash-attention {
+            animation: flash 1.5s 1 ease-out; /* Flash twice over 1.5 seconds */
+        }
+        /* END FLASH ATTENTION STYLES */
+
+
+        .definition-list dd {
+            margin-left: 0;
+            padding: 5px 0 10px 10px;
+            line-height: 1.4;
+            border-left: 3px solid var(--color-accent1); /* Definition border (Accent 1) */
+        }
+        
+        /* KEYWORD BUTTON STYLING (Accent 2) */
+        .keyWord {
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: bold;
+            color: var(--color-accent2); /* Inherits color from Accent 2 */
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0 2px;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: color 0.2s ease;
+        }
+        
+        .keyWord:hover {
+            color: #d1bfe5; /* Lighter color on hover */
+            text-decoration: none;
+        }
+        
+        .keyWord:focus {
+            outline: 1px dashed var(--color-accent2);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 style="color: var(--color-accent1);">
+                <span class="title-icon" style="color: var(--color-secondary);">◆</span> 
+                CULTS 
+                <span class="title-icon" style="color: var(--color-secondary);">◆</span>
+            </h1>
+            <div class="subtitle">Game Rules Cheat Sheet</div>
+            <div class="author-line">Samuel McGorry</div>
+        </header>
+        
+        <div class="divider"></div>
+
+        <div class="accordion" id="setup-accordion">
+            <div class="accordion-header cults-theme" onclick="toggleAccordion(this)" style="color: var(--color-main);">
+                Setup
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <ol>
+                        <li>Search for a 'Deathwish Cultist' and add it to your hand 🤲</li>
+                        <li>Shuffle your deck 🃏</li>
+                        <li>Draw 6 cards 🎴</li>
+                        <li>Redraw/Mulligan: (Optional) Redraw up to 2 cards. This can be done in steps (Redraw 1, then decide on a 2nd) 🔄</li>
+                        <li>Shuffle the deck after the Redraw 🃏</li>
+                        <li>Determine First Player 🥇</li>
+                        <li>Second Player Bonus: Gains 1 <button class="keyWord" data-term="offering">OFFERING</button> (one-off resource, removed once used) ✨</li>
+                        <li>First Player starts their turn ➡️</li>
+                        <li>First Turn Exemption: First player skips drawing a card on their first turn 🚫🎴</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion" id="turn-accordion">
+            <div class="accordion-header cults-theme" onclick="toggleAccordion(this)" style="color: var(--color-main);">
+                Player Turn
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <ol>
+                        <li>Untap all your cards 🔓</li>
+                        <li>Draw a card 🎴</li>
+                        <li><button class="keyWord" data-term="make-tribute">MAKE TRIBUTE</button> (Optional):
+                            <ul>
+                                <li>Choose any card in your hand or in play to <button class="keyWord" data-term="tribute">TRIBUTE</button> 🖤</li>
+                                <li>Restriction: Cannot tribute a creature played this same turn ⏳</li>
+                                <li>Turn the chosen card face-down in your resource area ⬇️</li>
+                                <li>Each face-down card counts as 1 permanent resource (<button class="keyWord" data-term="tribute">TRIBUTE</button>) 💎</li>
+                                <li>This action can only be done once per turn 🛑</li>
+                            </ul>
+                        </li>
+                        <li>Play Cards:
+                            <ul>
+                                <li>Play cards by <button class="keyWord" data-term="tapping">TAPPING</button> your <button class="keyWord" data-term="tribute">TRIBUTE</button> to pay the cost 💡</li>
+                                <li>Each <button class="keyWord" data-term="tribute">TRIBUTE</button> can only be tapped once per turn ☝️</li>
+                                <li>Cost is determined on the card 🏷️</li>
+                                <li>All cards must be played within your turn, except cards with <button class="keyWord" data-term="reaction">REACTION</button> ⏱️</li>
+                                <li><button class="keyWord" data-term="tribute">TRIBUTE</button> resources can be tapped the same turn they are played (i.e., the turn they are made) ✅</li>
+                            </ul>
+                        </li>
+                        <li><button class="keyWord" data-term="worship">WORSHIP</button>:
+                            <ul>
+                                <li>Any Cultists controlled since the start of the turn can be tapped to gain 1 point ⭐</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion" id="terms-accordion">
+            <div class="accordion-header cults-theme" onclick="toggleAccordion(this)" style="color: var(--color-main);">
+                Key Terms
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <dl class="definition-list">
+                        <dt id="rival">RIVAL</dt>
+                        <dd>The opposing player.</dd>
+                        
+                        <dt id="creature">CREATURE</dt>
+                        <dd>Any Cultist or Spawn card.</dd>
+
+                        <dt id="spell">SPELL</dt>
+                        <dd>An action card which resolves its ability and is then placed in your discard.</dd>
+
+                        <dt id="make-tribute">MAKE TRIBUTE</dt>
+                        <dd>The once-per-turn option for a player to turn a card or creature into TRIBUTE.</dd>
+
+                        <dt id="tribute">TRIBUTE</dt>
+                        <dd>The face-down resource cards that can be tapped once a turn to pay the cost of cards.</dd>
+
+                        <dt id="offering">OFFERING</dt>
+                        <dd>One-off resource cards that are removed once used.</dd>
+
+                        <dt id="tapping">TAP / TAPPING</dt>
+                        <dd>When tapping a card, it is turned sideways to indicate it has used its ability.
+                            <ul>
+                                <li><button class="keyWord" data-term="tribute">TRIBUTE</button> cards must be tapped in order to pay for the cost of a card to play it.</li>
+                                <li>A Cultist must be tapped in order to <button class="keyWord" data-term="worship">WORSHIP</button>.</li>
+                                <li>All cards are untapped at the start of each player’s turn.</li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion" id="abilities-accordion">
+            <div class="accordion-header cults-theme" onclick="toggleAccordion(this)" style="color: var(--color-main);">
+                Card Abilities
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <dl class="definition-list">
+                        <dt id="worship">WORSHIP</dt>
+                        <dd>The Cultist’s ability to tap and gain 1 point.
+                            <ul>
+                                <li>Only Cultists controlled since the start of the turn can <button class="keyWord" data-term="worship">WORSHIP</button>.</li>
+                                <li>(i.e. Cultists played, resurrected, or stolen cannot <button class="keyWord" data-term="worship">WORSHIP</button> the same turn).</li>
+                                <li>Each Cultist must be tapped sideways to indicate it has performed <button class="keyWord" data-term="worship">WORSHIP</button>.</li>
+                                <li>Multiple Cultists can <button class="keyWord" data-term="worship">WORSHIP</button> a turn, and you can only <button class="keyWord" data-term="worship">WORSHIP</button> during your turn.</li>
+                                <li><button class="keyWord" data-term="worship">WORSHIP</button> cannot be negated.</li>
+                            </ul>
+                        </dd>
+
+                        <dt id="entry">ENTRY</dt>
+                        <dd>Trigger this card's ability when it enters play.</dd>
+
+                        <dt id="death">DEATH</dt>
+                        <dd>Trigger this card's ability when it is sent to a discard from play. <button class="keyWord" data-term="make-tribute">MAKE TRIBUTE</button> also triggers this ability.</dd>
+
+                        <dt id="kill">KILL</dt>
+                        <dd>Remove a <button class="keyWord" data-term="creature">CREATURE</button> from play, send it to the owner's discard. If followed by a number (e.g., <button class="keyWord" data-term="kill">KILL</button> 2), remove that many instead.</dd>
+
+                        <dt id="steal">STEAL</dt>
+                        <dd>Take a <button class="keyWord" data-term="creature">CREATURE</button> in play and put it under your control.</dd>
+
+                        <dt id="sacrifice">SACRIFICE</dt>
+                        <dd>Select a card in play and place it in your discard. This is often a cost and must be paid to get the effect of a card.</dd>
+
+                        <dt id="reaction">REACTION</dt>
+                        <dd>Card can be played in either player's turn at any time, such as in response to another card being played.
+                            <ul>
+                                <li>When multiple <button class="keyWord" data-term="reaction">REACTION</button> cards are played, resolve them in reverse order of play (last in, first out).</li>
+                            </ul>
+                        </dd>
+
+                        <dt id="resurrect">RESURRECT</dt>
+                        <dd>Return a <button class="keyWord" data-term="creature">CREATURE</button> from your discard to play.</dd>
+
+                        <dt id="find">FIND</dt>
+                        <dd>Search your deck for a card, put it into your hand, and then shuffle your deck.
+                            <ul>
+                                <li>If the cards needed to be a particular type (i.e., Cultist), reveal them to your <button class="keyWord" data-term="rival">RIVAL</button> before putting them into your hand.</li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Toggles the clicked accordion, ensuring all others are closed.
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const allHeaders = document.querySelectorAll('.accordion-header');
+            const allContents = document.querySelectorAll('.accordion-content');
+            
+            // Check if the current header is already active (will be closed)
+            const isActive = header.classList.contains('active');
+            
+            // Close all accordions
+            allHeaders.forEach(h => {
+                h.classList.remove('active');
+            });
+            allContents.forEach(c => {
+                c.style.maxHeight = '0px'; // Explicitly set to 0
+            });
+            
+            // Open clicked accordion if it wasn't active
+            if (!isActive) {
+                header.classList.add('active');
+                // FIXED: Use scrollHeight for max-height to ensure iOS calculates the transition correctly.
+                content.style.maxHeight = content.scrollHeight + 'px'; 
+            }
+        }
+        
+        // Handles the click on a keyWord button to open the correct accordion and scroll, then flashes the term.
+        function handleKeywordClick(event) {
+            event.preventDefault(); 
+            const term = event.target.getAttribute('data-term');
+            const targetElement = document.getElementById(term);
+
+            if (targetElement) {
+                // Find the parent accordion content
+                let accordionContent = targetElement.closest('.accordion-content');
+                if (accordionContent) {
+                    let accordionHeader = accordionContent.previousElementSibling;
+
+                    // 1. Close all accordions first (for a clean state)
+                    document.querySelectorAll('.accordion-header').forEach(h => {
+                        h.classList.remove('active');
+                    });
+                    document.querySelectorAll('.accordion-content').forEach(c => {
+                        c.style.maxHeight = '0px';
+                    });
+
+                    // 2. Open the correct accordion
+                    if (accordionHeader) {
+                        accordionHeader.classList.add('active');
+                        // FIXED: Use scrollHeight for max-height when opening via keyword link
+                        accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
+                    }
+
+                    // 3. Scroll to the element once the accordion has finished expanding
+                    // Timeout matches the CSS transition time (0.3s) for a smooth experience.
+                    setTimeout(() => {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center' // Scrolls the definition to the middle of the viewport
+                        });
+                        
+                        // 4. FLASH the keyword text (Double Flash)
+                        // Remove any existing flash class first
+                        targetElement.classList.remove('flash-attention');
+                        // Force a reflow to restart the animation if it was already running
+                        void targetElement.offsetWidth;
+                        // Add the flash class
+                        targetElement.classList.add('flash-attention');
+
+                        // 5. Remove the flash class after the animation is complete (1500ms or 1.5s for double flash)
+                        setTimeout(() => {
+                            targetElement.classList.remove('flash-attention');
+                        }, 1500);
+
+                    }, 300);
+                }
+            }
+        }
+
+        // Attach the handler to all keyWord buttons once the DOM is fully loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.keyWord').forEach(button => {
+                button.addEventListener('click', handleKeywordClick);
+            });
+        });
+    </script>
+</body>
+</html>

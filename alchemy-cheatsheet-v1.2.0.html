@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alchemy - Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            color: #fff;
+            padding: 20px 10px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .accordion {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .accordion.hidden {
+            display: none;
+        }
+
+        .accordion-header {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .hide-btn {
+            position: absolute;
+            right: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            z-index: 10;
+        }
+
+        .hide-btn:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .controls.visible {
+            display: block;
+        }
+
+        .controls-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .show-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .show-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: white;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .show-btn.hidden {
+            display: none;
+        }
+
+        .show-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .show-btn:active {
+            transform: translateY(0);
+        }
+
+        .leader-row {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .leader-row .card-type,
+        .leader-row td {
+            color: #ffd700;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin: 30px 0;
+        }
+
+        .setup-list {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .setup-list ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .setup-list li {
+            padding: 10px 0;
+            font-size: 0.95em;
+            line-height: 1.5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setup-list li:last-child {
+            border-bottom: none;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 20px 0;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 1em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .accordion.no-hide .hide-btn {
+            display: none;
+        }
+
+        .accordion-header:hover {
+            filter: brightness(1.1);
+        }
+
+        .accordion-header::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-header.active::after {
+            transform: rotate(180deg);
+        }
+
+        .fire { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+        .earth { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+        .water { background: linear-gradient(135deg, #2980b9 0%, #3498db 100%); }
+        .air { background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%); }
+        .spirit { background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .accordion-content.active {
+            max-height: 2000px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .card-type {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .level {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .power {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .effect {
+            font-size: 0.8em;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ALCHEMY</h1>
+            <div class="subtitle">Samuel McGorry</div>
+        </header>
+
+        <!-- Fire Kingdom -->
+        <div class="accordion" data-faction="fire">
+            <div class="accordion-header fire" onclick="toggleAccordion(this)">
+                Fire Kingdom
+                <button class="hide-btn" onclick="hideFaction(event, 'fire')" title="Hide faction">×</button>
+            </div>
+            <div class="accordion-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Pwr</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="leader-row">
+                            <td class="card-type">Leader</td>
+                            <td>The Fire Queen</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="effect">Draw a card, discard a card, then exile non-major spell from graveyard and play it OR exile minor spell and play it twice</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Infantry</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">3</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Archers</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">4</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Cavalry</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">5</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Siege Engine</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">6</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Apprentice</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">If enemy unit damaged/destroyed this round, boost by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Adept</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Damage unit by 3 then boost by excess</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Arch Mage</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Exile minor spell from graveyard, replay 2x OR exile normal spell and play</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Minor</td>
+                            <td><span class="level">Minor</span></td>
+                            <td>—</td>
+                            <td class="effect">Deal 3 damage divided to enemies</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Normal</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Destroy enemy unit with power ≤7</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Major</td>
+                            <td><span class="level">Major</span></td>
+                            <td>—</td>
+                            <td class="effect">Deal 7 damage divided to enemies</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Trap</td>
+                            <td>Trap</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Facedown: Flip when opponent plays non-mage, destroy it OR flip on your turn for 2 power assassin</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Earth Kingdom -->
+        <div class="accordion" data-faction="earth">
+            <div class="accordion-header earth" onclick="toggleAccordion(this)">
+                Earth Kingdom
+                <button class="hide-btn" onclick="hideFaction(event, 'earth')" title="Hide faction">×</button>
+            </div>
+            <div class="accordion-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Pwr</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="leader-row">
+                            <td class="card-type">Leader</td>
+                            <td>The Earth Queen</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="effect">Create a 7 power unit OR boost a unit by 7</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Infantry</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">3</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Archers</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">4</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Cavalry</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">5</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Siege Engine</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">6</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Apprentice</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">If your unit boosted this round, boost by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Adept</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Fetch and play minor spell from deck</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Arch Mage</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Fetch and play non-major spell from deck</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Minor</td>
+                            <td><span class="level">Minor</span></td>
+                            <td>—</td>
+                            <td class="effect">Boost unit by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Normal</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Boost unit by 6</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Major</td>
+                            <td><span class="level">Major</span></td>
+                            <td>—</td>
+                            <td class="effect">Exile 2 units from deck/graveyard, boost unit by 7, shuffle</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Trap</td>
+                            <td>Trap</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Facedown: Flip when opponent targets your cards (anywhere), cancel it OR flip on your turn for 2 power assassin</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Water Kingdom -->
+        <div class="accordion" data-faction="water">
+            <div class="accordion-header water" onclick="toggleAccordion(this)">
+                Water Kingdom
+                <button class="hide-btn" onclick="hideFaction(event, 'water')" title="Hide faction">×</button>
+            </div>
+            <div class="accordion-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Pwr</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="leader-row">
+                            <td class="card-type">Leader</td>
+                            <td>The Water King</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="effect">Opponent reveals random card from hand, create and play copy. If minor card, create and play another copy</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Infantry</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">3</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Archers</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">4</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Cavalry</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">5</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Siege Engine</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">6</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Apprentice</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">If created/copied spell or unit this round, boost by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Adept</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Create three 1 power units</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Arch Mage</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Replay non-major spell from graveyard</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Minor</td>
+                            <td><span class="level">Minor</span></td>
+                            <td>—</td>
+                            <td class="effect">Create 1 power unit, boost 2 units by 1</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Normal</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Copy non-major unit and boost it by 2</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Major</td>
+                            <td><span class="level">Major</span></td>
+                            <td>—</td>
+                            <td class="effect">Look at top 3 cards, play one. If non-major, copy it. Shuffle</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Trap</td>
+                            <td>Trap</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Facedown: Flip when opponent plays unit, copy it OR flip on your turn for 2 power assassin</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Air Kingdom -->
+        <div class="accordion" data-faction="air">
+            <div class="accordion-header air" onclick="toggleAccordion(this)">
+                Air Kingdom
+                <button class="hide-btn" onclick="hideFaction(event, 'air')" title="Hide faction">×</button>
+            </div>
+            <div class="accordion-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Pwr</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="leader-row">
+                            <td class="card-type">Leader</td>
+                            <td>The Air King</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="effect">Reveal cards from deck until non-minor mage found, play it and boost by 2, shuffle after</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Infantry</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">3</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Archers</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">4</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Cavalry</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">5</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Siege Engine</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">6</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Apprentice</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">If played card/ability from deck this round, boost by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Adept</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Choose player, reveal until mage, play its ability, shuffle</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Arch Mage</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Fetch and play any unit from deck, shuffle</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Minor</td>
+                            <td><span class="level">Minor</span></td>
+                            <td>—</td>
+                            <td class="effect">Reveal non-major mage from hand, play ability OR replay non-major mage ability. Boost by 3 if apprentice with condition met</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Normal</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Shuffle unit into deck, owner reveals until non-minor unit, play and boost by 3, shuffle</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Major</td>
+                            <td><span class="level">Major</span></td>
+                            <td>—</td>
+                            <td class="effect">Shuffle units from graveyard to deck. Summon non-mage units from deck totaling 7 power</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Trap</td>
+                            <td>Trap</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Facedown: Flip when opponent plays unit, shuffle into deck, cancel ability OR flip on your turn for 2 power assassin</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Spirit Kingdom -->
+        <div class="accordion" data-faction="spirit">
+            <div class="accordion-header spirit" onclick="toggleAccordion(this)">
+                Spirit Kingdom
+                <button class="hide-btn" onclick="hideFaction(event, 'spirit')" title="Hide faction">×</button>
+            </div>
+            <div class="accordion-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Pwr</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="leader-row">
+                            <td class="card-type">Leader</td>
+                            <td>The Spirit King</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="effect">Each player mills 3 cards, then play up to one non-major unit and one minor unit from any graveyard/s</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Infantry</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">3</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Archers</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">4</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Cavalry</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">5</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Unit</td>
+                            <td>Siege Engine</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">6</td>
+                            <td class="effect">—</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Apprentice</td>
+                            <td><span class="level">Minor</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">If played card from graveyard this round, boost by 3</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Adept</td>
+                            <td><span class="level">Normal</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Each player mills 3, play minor card from any graveyard</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Mage</td>
+                            <td>Arch Mage</td>
+                            <td><span class="level">Major</span></td>
+                            <td class="power">1</td>
+                            <td class="effect">Each player mills 2, play non-major spell from any graveyard</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Minor</td>
+                            <td><span class="level">Minor</span></td>
+                            <td>—</td>
+                            <td class="effect">Each player mills 3, replay different minor spell from any graveyard</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Normal</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Steal unit with power ≤4</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Spell</td>
+                            <td>Major</td>
+                            <td><span class="level">Major</span></td>
+                            <td>—</td>
+                            <td class="effect">Resurrect non-major unit from any graveyard, replay minor spell from any graveyard</td>
+                        </tr>
+                        <tr>
+                            <td class="card-type">Trap</td>
+                            <td>Trap</td>
+                            <td><span class="level">Normal</span></td>
+                            <td>—</td>
+                            <td class="effect">Facedown: Flip when opponent plays spell, copy it OR flip on your turn for 2 power assassin</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+		
+        <div class="controls">
+            <div class="controls-header">Show Hidden Kingdoms</div>
+            <div class="show-buttons">
+                <button class="show-btn fire hidden" data-faction="fire" onclick="showFaction('fire')">Show Fire</button>
+                <button class="show-btn earth hidden" data-faction="earth" onclick="showFaction('earth')">Show Earth</button>
+                <button class="show-btn water hidden" data-faction="water" onclick="showFaction('water')">Show Water</button>
+                <button class="show-btn air hidden" data-faction="air" onclick="showFaction('air')">Show Air</button>
+                <button class="show-btn spirit hidden" data-faction="spirit" onclick="showFaction('spirit')">Show Spirit</button>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Setup Accordion -->
+        <div class="accordion no-hide">
+            <div class="accordion-header" style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);" onclick="toggleAccordion(this)">
+                Setup
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <ol>
+                        <li>Determine Crown Player 👑</li>
+                        <li>Players Pick Kingdoms ⚔️</li>
+                        <li>Crown Selects Play Order 📋</li>
+                        <li>Players Draw 7 🎴</li>
+                        <li>Mulligan - (Optional) up to 2 cards 🔄</li>
+                        <li>Starting Player Gains The Fort 🏰</li>
+                        <li>Best of 3 Rounds 🏆</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Turn Structure Accordion -->
+        <div class="accordion no-hide">
+            <div class="accordion-header" style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);" onclick="toggleAccordion(this)">
+                Turn Structure
+            </div>
+            <div class="accordion-content">
+                <div class="setup-list">
+                    <ol>
+                        <li>Option to Concede the Round 🏳️</li>
+                        <li>Play 1 Card from Hand 🃏</li>
+                        <li>Option to Use Leader Ability (once a game) ⚡</li>
+                        <li>Calculate Points 🔢</li>
+                        <li>Pass Turn ⏭️</li>
+                    </ol>
+                    
+                    <div class="section-divider"></div>
+                    
+                    <div class="section-title">End of Round</div>
+                    <ol>
+                        <li>Winner Awarded a Crown 👑</li>
+                        <li>Draw 2 Cards 🎴</li>
+                        <li>Mulligan - (Optional) up to 2 cards 🔄</li>
+                        <li>Conceding Player Starts New Round 🔁</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
+            
+            // Close all accordions
+            document.querySelectorAll('.accordion-header').forEach(h => {
+                h.classList.remove('active');
+                h.nextElementSibling.classList.remove('active');
+            });
+            
+            // Open clicked accordion if it wasn't active
+            if (!isActive) {
+                header.classList.add('active');
+                content.classList.add('active');
+            }
+        }
+
+        function hideFaction(event, factionName) {
+            event.stopPropagation(); // Prevent accordion from toggling
+            
+            const accordion = document.querySelector(`.accordion[data-faction="${factionName}"]`);
+            const showBtn = document.querySelector(`.show-btn[data-faction="${factionName}"]`);
+            const controls = document.querySelector('.controls');
+            
+            if (accordion) {
+                accordion.classList.add('hidden');
+            }
+            if (showBtn) {
+                showBtn.classList.remove('hidden');
+            }
+            
+            // Show controls section if any kingdom is hidden
+            if (controls) {
+                controls.classList.add('visible');
+            }
+        }
+
+        function showFaction(factionName) {
+            const accordion = document.querySelector(`.accordion[data-faction="${factionName}"]`);
+            const showBtn = document.querySelector(`.show-btn[data-faction="${factionName}"]`);
+            const controls = document.querySelector('.controls');
+            
+            if (accordion) {
+                accordion.classList.remove('hidden');
+            }
+            if (showBtn) {
+                showBtn.classList.add('hidden');
+            }
+            
+            // Hide controls section if no kingdoms are hidden
+            const anyHidden = document.querySelectorAll('.show-btn:not(.hidden)').length > 0;
+            if (!anyHidden && controls) {
+                controls.classList.remove('visible');
+            }
+        }
+    </script>
+</body>
+</html>
