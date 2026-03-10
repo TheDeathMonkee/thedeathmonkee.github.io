@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#1a2a0e"/>
+  <title>Goblin Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bog:       #1a2a0e;
+      --mold:      #2e4a1a;
+      --slime:     #5a8a2a;
+      --bright:    #8dc63f;
+      --mud:       #3d2a10;
+      --dirt:      #6b4a22;
+      --bone:      #e8dfc0;
+      --tooth:     #c8b878;
+      --rust:      #c04a1a;
+      --snot:      #9dc43f;
+      --orange:    #e8a040;
+    }
+
+    html { height: 100%; }
+
+    body {
+      min-height: 100dvh;
+      background-color: var(--bog);
+      background-image:
+        radial-gradient(ellipse 120% 60% at 50% 100%, #0d1a06 0%, transparent 70%),
+        radial-gradient(ellipse 80% 40% at 20% 20%, #2e4a1a 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 10%, #1a3a0a 0%, transparent 50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+      font-family: 'Libre Baskerville', Georgia, serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ── Background blobs ── */
+    .bg-blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .blob { position: absolute; border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; opacity: 0.07; }
+    .blob-1 { width: 300px; height: 300px; background: var(--slime); top: -80px; left: -60px; animation: blobwobble 12s ease-in-out infinite; }
+    .blob-2 { width: 200px; height: 250px; background: var(--mold); bottom: 10%; right: -40px; animation: blobwobble 9s ease-in-out infinite reverse; }
+    .blob-3 { width: 180px; height: 160px; background: var(--bright); top: 40%; left: -30px; animation: blobwobble 14s ease-in-out infinite 2s; }
+    @keyframes blobwobble {
+      0%,100% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; transform: scale(1) rotate(0deg); }
+      33%     { border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%; transform: scale(1.05) rotate(3deg); }
+      66%     { border-radius: 70% 30% 50% 50% / 30% 70% 50% 50%; transform: scale(0.97) rotate(-2deg); }
+    }
+
+    /* ── Main card ── */
+    .card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 480px;
+      margin: 1.5rem auto;
+      padding: 0 1rem 1rem;
+    }
+
+    /* ── Header ── */
+    .header { text-align: center; padding: 1.4rem 1rem 0.6rem; position: relative; }
+    .goblin-emoji {
+      font-size: 2.8rem; display: block; line-height: 1; margin-bottom: 0.2rem;
+      filter: drop-shadow(0 2px 8px rgba(90,138,42,0.5));
+      animation: headbob 3s ease-in-out infinite;
+    }
+    @keyframes headbob {
+      0%,100% { transform: rotate(-3deg) translateY(0); }
+      50%     { transform: rotate(3deg) translateY(-4px); }
+    }
+    h1 {
+      font-family: 'Caveat', cursive; font-size: clamp(2.2rem, 8vw, 3rem); font-weight: 700;
+      color: var(--bright); line-height: 1;
+      text-shadow: 2px 3px 0 var(--bog), 0 0 20px rgba(141,198,63,0.4);
+      display: inline-block; transform: rotate(-1.5deg);
+    }
+    .byline { margin-top: 0.5rem; font-size: 0.72rem; font-style: italic; color: var(--tooth); opacity: 0.6; letter-spacing: 0.08em; }
+
+    /* ── Wiggle divider ── */
+    .wiggle-line { width: 100%; height: 14px; margin: 0.8rem 0; overflow: visible; }
+
+    /* ── Stat cards — ROLL MODE ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem; }
+    .stat-card {
+      background: linear-gradient(160deg, #2a3d14 0%, #1e2e0e 100%);
+      border: 2px solid var(--mold); border-radius: 8px 4px 10px 5px;
+      padding: 0.9rem 0.5rem 0.7rem; text-align: center; position: relative;
+      box-shadow: 3px 3px 0 #0d1a06, inset 0 1px 0 rgba(141,198,63,0.1);
+    }
+    .stat-card:nth-child(1) { transform: rotate(-0.5deg); }
+    .stat-card:nth-child(2) { transform: rotate(0.8deg); }
+    .stat-card:nth-child(3) { transform: rotate(-0.3deg); }
+    .stat-card::before { content: '✦'; position: absolute; top: 3px; left: 5px; font-size: 0.45rem; color: var(--slime); opacity: 0.5; }
+
+    .stat-label {
+      font-family: 'Caveat', cursive; font-size: 0.95rem; font-weight: 700;
+      color: var(--snot); display: block; margin-bottom: 0.25rem; letter-spacing: 0.04em;
+    }
+    .stat-value {
+      font-family: 'Caveat', cursive; font-size: 2.8rem; font-weight: 700;
+      color: var(--bone); line-height: 1; display: block; min-height: 2.8rem;
+      text-shadow: 1px 2px 0 rgba(0,0,0,0.5);
+    }
+    .stat-value.empty { color: var(--mold); }
+    .stat-value.rolling { animation: jiggle 0.08s linear infinite; }
+    @keyframes jiggle {
+      0%   { transform: translate(0,0) rotate(0deg); }
+      25%  { transform: translate(1px,-1px) rotate(1deg); }
+      50%  { transform: translate(-1px,1px) rotate(-1deg); }
+      75%  { transform: translate(1px,1px) rotate(0.5deg); }
+      100% { transform: translate(0,0) rotate(0deg); }
+    }
+    .stat-desc { font-size: 0.6rem; color: var(--tooth); opacity: 0.55; display: block; margin-top: 0.2rem; font-style: italic; letter-spacing: 0.05em; }
+
+    /* ── HP card ── */
+    .hp-row { margin-bottom: 0.6rem; }
+    .hp-card {
+      background: linear-gradient(160deg, #3a1a0a 0%, #2a1008 100%);
+      border: 2px solid #6b2a10; border-radius: 6px 10px 5px 9px;
+      padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: center; gap: 1rem;
+      box-shadow: 3px 3px 0 #0d0805, inset 0 1px 0 rgba(192,74,26,0.15);
+      transform: rotate(0.3deg);
+    }
+    .hp-card .stat-label { color: #e8703a; font-size: 1.1rem; margin: 0; }
+    .hp-card .stat-value { font-size: 3.2rem; color: #f09060; min-height: auto; }
+    .hp-card .stat-desc  { color: #c07050; opacity: 0.7; margin: 0; }
+    .hp-card .stat-value.empty { color: #5a2a18; }
+    .hp-text { text-align: left; }
+
+    /* ── Items panel ── */
+    .items-panel {
+      background: linear-gradient(170deg, #232e12 0%, #1a2209 100%);
+      border: 2px solid var(--mold); border-radius: 5px 10px 8px 6px;
+      padding: 1rem 1rem 0.9rem; opacity: 0;
+      transform: translateY(8px) rotate(0.2deg);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none; box-shadow: 3px 4px 0 #0d1a06; margin-bottom: 0.6rem;
+    }
+    .items-panel.visible { opacity: 1; transform: translateY(0) rotate(0.2deg); pointer-events: auto; }
+
+    .items-panel-label {
+      font-family: 'Caveat', cursive; font-size: 1.05rem; font-weight: 700;
+      color: var(--snot); display: block; margin-bottom: 0.6rem; letter-spacing: 0.03em;
+    }
+    .items-list { list-style: none; padding: 0; }
+    .items-list li {
+      font-size: 0.92rem; color: var(--bone); padding: 0.28rem 0;
+      border-bottom: 1px dashed rgba(90,138,42,0.25);
+      display: flex; align-items: baseline; gap: 0.45rem; line-height: 1.45;
+    }
+    .items-list li:last-child { border-bottom: none; }
+    .items-list li::before { content: '🗡'; font-size: 0.7rem; flex-shrink: 0; filter: grayscale(0.3); }
+    .items-list li.appearance-li::before { content: '👁'; }
+    .item-appearance { font-style: italic; color: var(--orange); }
+    .tool-note {
+      margin-top: 0.7rem; font-size: 0.75rem; font-style: italic; color: var(--tooth); opacity: 0.6;
+      border-top: 1px dashed rgba(90,138,42,0.2); padding-top: 0.55rem; line-height: 1.5;
+    }
+
+    /* ── Button row ── */
+    .btn-row {
+      display: flex; gap: 0.7rem; justify-content: center; align-items: center;
+      padding: 0.4rem 0 0.8rem; flex-wrap: wrap;
+    }
+
+    .btn-goblin {
+      font-family: 'Caveat', cursive; font-size: 1.6rem; font-weight: 700;
+      color: var(--bog);
+      background: linear-gradient(160deg, var(--bright) 0%, #6aaa20 100%);
+      border: none; border-radius: 8px 4px 9px 5px;
+      padding: 0.7rem 2.2rem 0.65rem; cursor: pointer; letter-spacing: 0.04em;
+      box-shadow: 3px 4px 0 #2a5010, inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+      transform: rotate(-0.8deg);
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      min-height: 52px; min-width: 160px;
+    }
+    .btn-goblin:hover  { filter: brightness(1.08); }
+    .btn-goblin:active { transform: rotate(-0.8deg) translateY(3px); box-shadow: 1px 1px 0 #2a5010; }
+    .btn-goblin:disabled { opacity: 0.5; cursor: not-allowed; transform: rotate(-0.8deg); }
+
+    .btn-keep {
+      font-family: 'Caveat', cursive; font-size: 1.4rem; font-weight: 700;
+      color: var(--bone);
+      background: linear-gradient(160deg, #5a3a8a 0%, #3a2060 100%);
+      border: none; border-radius: 5px 9px 6px 10px;
+      padding: 0.65rem 1.6rem 0.6rem; cursor: pointer; letter-spacing: 0.04em;
+      box-shadow: 3px 4px 0 #1a0a30, inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+      transform: rotate(0.6deg);
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      min-height: 52px; min-width: 120px;
+      /* hidden until a roll has been made */
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.1s, box-shadow 0.1s, filter 0.15s;
+    }
+    .btn-keep.visible { opacity: 1; pointer-events: auto; }
+    .btn-keep:hover  { filter: brightness(1.1); }
+    .btn-keep:active { transform: rotate(0.6deg) translateY(3px); box-shadow: 1px 1px 0 #1a0a30; }
+
+    /* ── CHARACTER SHEET MODE ── */
+    /* Transforms the page into a filled-in sheet */
+    body.sheet-mode .btn-goblin { display: none; }
+    body.sheet-mode .btn-keep   { display: none; }
+    body.sheet-mode .byline     { opacity: 1; color: var(--snot); }
+
+    /* Stat cards in sheet mode — dropdown replaces big number */
+    .stat-card.sheet {
+      padding: 0.75rem 0.4rem 0.7rem;
+    }
+    .stat-card.sheet .stat-value { display: none; }
+
+    .stat-select-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .stat-card.sheet .stat-select-wrap { display: flex; }
+
+    .stat-select {
+      font-family: 'Caveat', cursive; font-size: 2rem; font-weight: 700;
+      color: var(--bone); background: rgba(0,0,0,0.35);
+      border: 1.5px solid var(--slime); border-radius: 5px 3px 6px 4px;
+      padding: 0.15rem 0.3rem; text-align: center;
+      width: 100%; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      touch-action: manipulation;
+      /* centre the text in webkit */
+      text-align-last: center;
+    }
+    .stat-select:focus { outline: none; border-color: var(--bright); box-shadow: 0 0 0 2px rgba(141,198,63,0.3); }
+
+    .stat-max {
+      font-family: 'Caveat', cursive; font-size: 0.75rem;
+      color: var(--tooth); opacity: 0.55;
+    }
+
+    /* HP card in sheet mode */
+    .hp-card.sheet .stat-value { display: none; }
+    .hp-card .hp-select-wrap { display: none; flex-direction: column; align-items: center; gap: 0.2rem; }
+    .hp-card.sheet .hp-select-wrap { display: flex; }
+    .hp-select {
+      font-family: 'Caveat', cursive; font-size: 2.4rem; font-weight: 700;
+      color: #f09060; background: rgba(0,0,0,0.35);
+      border: 1.5px solid #6b2a10; border-radius: 5px 3px 6px 4px;
+      padding: 0.15rem 0.5rem; text-align: center; text-align-last: center;
+      width: 80px; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      touch-action: manipulation;
+    }
+    .hp-select:focus { outline: none; border-color: #e8703a; box-shadow: 0 0 0 2px rgba(232,112,58,0.3); }
+    .hp-max { font-family: 'Caveat', cursive; font-size: 0.75rem; color: #c07050; opacity: 0.7; }
+
+    /* Items in sheet mode — add button + extra items */
+    .add-item-row {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed rgba(90,138,42,0.25);
+    }
+    .add-item-row.visible { display: flex; }
+
+    .btn-add {
+      font-family: 'Caveat', cursive; font-size: 1rem; font-weight: 700;
+      color: var(--bog); background: linear-gradient(160deg, var(--snot) 0%, #6aaa20 100%);
+      border: none; border-radius: 5px 3px 6px 4px;
+      padding: 0.35rem 0.8rem; cursor: pointer;
+      box-shadow: 2px 2px 0 #2a5010;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      white-space: nowrap; flex-shrink: 0;
+      min-height: 40px;
+    }
+    .btn-add:active { transform: translateY(1px); box-shadow: 0 0 0 #2a5010; }
+
+    /* Extra item rows */
+    .extra-items { margin-top: 0; }
+    .extra-item-row {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px dashed rgba(90,138,42,0.2);
+      animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .extra-item-row::before { content: '🗡'; font-size: 0.7rem; flex-shrink: 0; filter: grayscale(0.3); }
+
+    .extra-item-input {
+      font-family: 'Libre Baskerville', serif; font-size: 0.88rem;
+      color: var(--bone); background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(90,138,42,0.4); border-radius: 3px;
+      padding: 0.3rem 0.5rem; flex: 1; min-width: 0;
+      caret-color: var(--bright);
+    }
+    .extra-item-input::placeholder { color: rgba(200,184,120,0.35); }
+    .extra-item-input:focus { outline: none; border-color: var(--slime); background: rgba(0,0,0,0.45); }
+
+    .btn-remove-item {
+      font-size: 0.9rem; line-height: 1;
+      color: #c07050; background: transparent; border: none; cursor: pointer;
+      padding: 0.3rem 0.2rem; flex-shrink: 0;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      opacity: 0.7; min-height: 36px; min-width: 28px;
+    }
+    .btn-remove-item:hover { opacity: 1; }
+
+    /* Sheet mode roll-again button */
+    .sheet-footer {
+      display: none; text-align: center; padding: 0.4rem 0 0.6rem;
+    }
+    body.sheet-mode .sheet-footer { display: block; }
+
+    .btn-reroll {
+      font-family: 'Caveat', cursive; font-size: 1.3rem; font-weight: 700;
+      color: var(--tooth); background: transparent;
+      border: 2px dashed rgba(200,184,120,0.3); border-radius: 6px;
+      padding: 0.5rem 1.4rem; cursor: pointer;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.2s, color 0.2s;
+      min-height: 48px;
+    }
+    .btn-reroll:hover { border-color: var(--tooth); color: var(--bone); }
+
+    .footnote {
+      text-align: center; font-size: 0.68rem; font-style: italic;
+      color: var(--tooth); opacity: 0.4; padding: 0 0 1rem; line-height: 1.7; letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 360px) {
+      h1 { font-size: 2rem; }
+      .stat-value { font-size: 2.3rem; }
+      .hp-card .stat-value { font-size: 2.6rem; }
+      .btn-goblin { font-size: 1.4rem; padding: 0.7rem 1.6rem; }
+      .items-list li { font-size: 0.85rem; }
+      .stat-select { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-blobs" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="card">
+
+  <div class="header">
+    <span class="goblin-emoji" aria-hidden="true">👺</span>
+    <h1>Goblin Generator</h1>
+    <p class="byline">Into the Odd · Roll Your Fate</p>
+  </div>
+
+  <svg class="wiggle-line" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,7 C20,2 40,12 60,7 S100,2 120,7 S160,12 180,7 S220,2 240,7 S280,12 300,7 S340,2 360,7 S390,11 400,7"
+          fill="none" stroke="#3d5a1a" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <!-- Stat cards -->
+  <div class="stats-grid" role="region" aria-label="Character stats">
+
+    <div class="stat-card" id="card-str">
+      <span class="stat-label">STR</span>
+      <span class="stat-value empty" id="str">—</span>
+      <!-- sheet mode -->
+      <div class="stat-select-wrap">
+        <select class="stat-select" id="sel-str" aria-label="Strength value"></select>
+        <span class="stat-max" id="max-str"></span>
+      </div>
+      <span class="stat-desc">Strength</span>
+    </div>
+
+    <div class="stat-card" id="card-dex">
+      <span class="stat-label">DEX</span>
+      <span class="stat-value empty" id="dex">—</span>
+      <div class="stat-select-wrap">
+        <select class="stat-select" id="sel-dex" aria-label="Dexterity value"></select>
+        <span class="stat-max" id="max-dex"></span>
+      </div>
+      <span class="stat-desc">Dexterity</span>
+    </div>
+
+    <div class="stat-card" id="card-wil">
+      <span class="stat-label">WIL</span>
+      <span class="stat-value empty" id="wil">—</span>
+      <div class="stat-select-wrap">
+        <select class="stat-select" id="sel-wil" aria-label="Willpower value"></select>
+        <span class="stat-max" id="max-wil"></span>
+      </div>
+      <span class="stat-desc">Willpower</span>
+    </div>
+
+  </div>
+
+  <div class="hp-row">
+    <div class="hp-card" id="card-hp">
+      <div class="hp-text">
+        <span class="stat-label">Hit Protection</span>
+        <span class="stat-desc">Capacity to avoid harm</span>
+      </div>
+      <span class="stat-value empty" id="hp">—</span>
+      <!-- sheet mode -->
+      <div class="hp-select-wrap">
+        <select class="hp-select" id="sel-hp" aria-label="Hit Protection value"></select>
+        <span class="hp-max" id="max-hp"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipment panel -->
+  <div class="items-panel" id="itemsPanel" role="region" aria-label="Character equipment" aria-live="polite">
+    <span class="items-panel-label">⚔ Yer Stuff &amp; Traits</span>
+    <ul class="items-list" id="itemsList"></ul>
+
+    <!-- Extra items added in sheet mode -->
+    <div class="extra-items" id="extraItems"></div>
+
+    <!-- Add item row — sheet mode only -->
+    <div class="add-item-row" id="addItemRow">
+      <button class="btn-add" onclick="addExtraItem()" aria-label="Add item">+ Add Item</button>
+    </div>
+
+    <p class="tool-note">+ pick 1 adventuring tool — fits in a bag, not a weapon.</p>
+  </div>
+
+  <svg class="wiggle-line" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,7 C25,12 45,2 70,7 S110,12 130,7 S170,2 200,7 S240,12 260,7 S300,2 330,7 S370,12 400,7"
+          fill="none" stroke="#3d5a1a" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <!-- Buttons — roll mode -->
+  <div class="btn-row">
+    <button class="btn-goblin" id="rollBtn" onclick="rollCharacter()" aria-label="Roll a new goblin character">
+      🎲 Goblin Time!
+    </button>
+    <button class="btn-keep" id="keepBtn" onclick="keepCharacter()" aria-label="Keep this character">
+      📋 Keep
+    </button>
+  </div>
+
+  <!-- Sheet mode re-roll -->
+  <div class="sheet-footer">
+    <button class="btn-reroll" onclick="resetToRoll()" aria-label="Start over with a new goblin">
+      🎲 Roll a new goblin
+    </button>
+  </div>
+
+  <p class="footnote">
+    STR · DEX · WIL on 3d6 &nbsp;|&nbsp; HP on 1d6<br>
+    <em>Into the Odd</em> by Chris McDowall
+  </p>
+
+</div>
+
+<script>
+// ─── Item table ────────────────────────────────────────────────────────────
+const TABLE = {
+  "3-9": [
+    { items: ["Focus staff (d6)", "Momentary Mind control on WIL check", "Can see a rough image 5ft past walls"], appearance: "Giant brain" },
+    { items: ["Boomstick (d8)", "Staff (d6)", "Firecracker Flashbangs", "Sense nearby Arcana"], appearance: "Wonky wizard hat & fake beard" },
+    { items: ["Boomstick (d8)", "Strong Fists (d6)", "Immunity to extreme heat and cold"], appearance: "Super hero cape" },
+    { items: ["Mini-Boomstick (d6)", "Knife (d6)", "Bent metal spoon", "Telepathy if target fails WIL save"], appearance: "Fortune teller hat" },
+    { items: ["Sword (d6)", "Mini-Boomstick (d6)", "Pots n' Pans Armour", "Smell nearby hummies (humans)", "Self awarded medals of honour and general's hat"], appearance: "" },
+    { items: ["Boomstick (d8)", "Hatchet (d6)", "Firecracker Flashbang", "Clockwork Limb", "Arcanum"], appearance: "Steampunk top hat & goggles (which do nothing)" },
+  ],
+  "10": [
+    { items: ["Sniping-Boomstick (d8)", "Sword (d6)", "Flying Glow Fairy", "Momentary flight"], appearance: "Peter Pan hat and green costume" },
+    { items: ["Evil staff (d8)", "Knife (d6)", "Flying sprite", "Arcanum"], appearance: "Witch hat and cape" },
+    { items: ["Boomstick (d8)", "Protective Gloves", "Flour", "Cakes", "Arcanum"], appearance: "Baking Apron" },
+    { items: ["Big Sword (d8)", "Mini-Boomstick (d6)", "2 Acid Flasks", "Arcanum"], appearance: "John Lennon glasses and tie dye t-shirt" },
+    { items: ["Duel Mini-Boomsticks (d8)", "Steel Wire", "Grappling Hook", "Arcanum"], appearance: "Oni mask and ninja headscarf" },
+    { items: ["Mini Flamethrower (d6)", "Spatula (d6)", "BBQ sauce"], appearance: '"Kiss the cook" Apron' },
+  ],
+  "11": [
+    { items: ["Sniping-Boomstick (d8)", "Pots n' Pans Armour", "Big-Squig", "Arcanum"], appearance: "Poorly coloured camo net and tactical fishing hat" },
+    { items: ["Baseball bat (d6)", "Mini-Boomstick (d6)", "Bolt-Cutters", "Arcanum"], appearance: "Slick back hair, toothpick and leather jacket" },
+    { items: ["Boomstick (d8)", "Mallet", "Marbles", "Slingshot", "Arcanum"], appearance: "Denim dungarees with large lollipop in back pocket" },
+    { items: ["Boomstick (d8)", "Pointy stick (d6)", "Squig with telepathic link"], appearance: "Steve Irwin wig and shirt" },
+    { items: ["Staff (d6)", "Energy Bolt (d8)", "Talking Parrot", "Never Sleep"], appearance: "Arabian outfit and cape" },
+    { items: ["Club (d6)", "3 Bombs", "Firework Rocket", "Darkvision", "Matches"], appearance: "Goggles and soot covered face" },
+  ],
+  "12": [
+    { items: ["Wacky-Mallet (d6)", "Throwing Knives (d6)", "Custard pies", "Balloons that grant temporary upward flight for one", "Arcanum"], appearance: "Clown facepaint and wig" },
+    { items: ["Boomstick (d8)", "Big-Squig in Poke-Ball", "Arcanum"], appearance: "Pokemon trainer hat" },
+    { items: ["Colt (d6)", "Manacles", "Arcanum"], appearance: "Makeshift Sheriff's Badge & hat" },
+    { items: ["Mini-Boomstick (d6)", "Toxin-Immune", "Firework Rocket"], appearance: "Plague doctor mask and hat" },
+    { items: ["Harpoon Gun (d8)", "Pirate Sword (d6)", "Acid", "Slightly Magnetic"], appearance: "Pirate hat & Cosmetic Eyepatch" },
+    { items: ["Maul (d8)", "Dagger (d6)", "Chain", "Bobby pins"], appearance: "Edgy rogue cape & face scarf" },
+  ],
+  "13": [
+    { items: ["Mini-Boomstick-with-Silencer (d6)", "Ether", "Poison", "Arcanum"], appearance: "Tuxedo, cufflinks and bowtie" },
+    { items: ["Sword (d6)", "Mini-Boomstick (d6)", "Pots n' Pans Armour"], appearance: "Paladin cape" },
+    { items: ["Shovel (d6)", "Tiny undead goblin", "Book of the Dead"], appearance: "Necromancer garb" },
+    { items: ["Boomstick (d8)", "Door Ram", "Manacles", "Smoke grenade"], appearance: "Swat uniform" },
+    { items: ["Music box", "Sword (d6)", "Fiddle", "Book of Inspiring Songs"], appearance: "Bard hat with feather" },
+    { items: ["Boarding Pike (d8)", "Rum", "Bomb"], appearance: "Pirate head scarf & pretend moustache" },
+  ],
+  "14": [
+    { items: ["Cane (d6)", "Acid", "Spyglass", "Arcanum"], appearance: "Bowler hat & Licence to kill" },
+    { items: ["Ninja stars (d6)", "Bell", "Steel Wire", "Smoke-bomb"], appearance: "Ninja headscarf" },
+    { items: ["Longaxe (d8)", "Throwing Axes (d6)", "Fire Oil"], appearance: "Viking hat with horns" },
+    { items: ["Mini-Boomstick (d6)", "Saw", "Animal Trap", "Spyglass", "Rope"], appearance: "Raccoon Trapper hat" },
+    { items: ["Mini-Boomstick (d6)", "Spanner (d6)", "Grease", "Drill", "Fire Oil"], appearance: "Mechanic dungarees" },
+    { items: ["Dagger (d6)", "Fire Oil", "Mirror", "Large Golden locks and Handsome chin and Abs"], appearance: "Fabio" },
+  ],
+  "15": [
+    { items: ["Duel Mini-Boomsticks (d8)", "Pet poisonous snake", "Whisky"], appearance: "Cowboy hat and snakeskin boots" },
+    { items: ["Scimitar (d8)", "Small goblin slave with giant leaf", "Fire Oil"], appearance: "Pharaoh guard hat and loin cloth" },
+    { items: ["Club (d6)", "Ether", "Small Crowbar", "Bongo drums", "Mary-Jane"], appearance: "Beatnik hat & Sunglasses" },
+    { items: ["Bow (d6)", "Sword (d6)", "Elven Bread", "Fire Oil"], appearance: "Legolas Wig and cape" },
+    { items: ["Sword & Dagger (d8)", "Magnifying Glass", "Pocket-watch", "Pipe"], appearance: "Deerstalker hat" },
+    { items: ["Mini-Boomstick (d6)", "Knife (d6)", "Bomb (d8)", "Chain cutters", "Saw"], appearance: "Camo facepaint and beret" },
+  ],
+  "16": [
+    { items: ["Mutated-giant arm (d8)", "Chains", "Hooch", "Banjo"], appearance: "Dungarees" },
+    { items: ["Oversized chopping knife (d8)", "Matches", "Spices", "Alcohol"], appearance: "Burnt Chef hat and apron" },
+    { items: ["Boomstick (d6)", "Net", "Fire Oil", "Burnt Face"], appearance: "Hillbilly dungarees and straw hat" },
+    { items: ["Mini-Boomstick (d6)", "Whip (d6)", "Cigars", "Dim vision (can only clearly see 15ft ahead)"], appearance: "Circus ringmaster hat and moustache" },
+    { items: ["Sword (d6)", "Acid", "Armour", "Bronze Prosthetic Hand"], appearance: "Golden hair wig and cape" },
+    { items: ["Mini-Boomstick (d6)", "Samurai Sword (d6)", "Lynx Africa", "Glowing Eyes", "Fake fangs"], appearance: "Edgy trench coat" },
+  ],
+  "17": [
+    { items: ["Halberd (d8)", "Fake Mini-Boomstick", "Horn"], appearance: "Guard helmet, grey beard & eyepatch (both eyes work)" },
+    { items: ["Mini-Boomstick (d6)", "Net", "Prosthetic Leg", "Accordion"], appearance: "Pirate head scarf and fake beard" },
+    { items: ["Oversized-paint brush (d6)", "Paint", "Small Crowbar", "Noisy flatulence"], appearance: "Painter's beret and long shirt" },
+    { items: ["Musket (d8)", "Accordion", "No Nose/Scent"], appearance: "Lederhosen & Feathered hat" },
+    { items: ["Sword (d6)", "Steel Wire", "Potatoes", "Noisy Belching"], appearance: "Actually a Hobbit wearing a Goblin costume" },
+    { items: ["Staff (d8)", "Throwing Knives (d6)", "Tendency to battle cry like Bruce Lee (can't sneak attack)"], appearance: "Drawn-on forehead monk dots and Shaolin robes" },
+  ],
+  "18": [
+    { items: ["Garotte/cheese wire (d6)", "Musket (d8)", "Cane", "Perpetually Drunk"], appearance: "Top hat and cape with gloves" },
+    { items: ["Mini-Boomstick (d6)", "Grease", "Hacksaw (d6)", "One Arm"], appearance: "Doctor's outfit" },
+    { items: ["Mini-Boomstick (d6)", "Cigars", "Poison", "Can't whisper"], appearance: "Tony Montana suit" },
+    { items: ["Sword (d6)", "Shield", "Knightly Armour", "Illiterate"], appearance: "Goblin crest crudely painted on shield with knightly cape" },
+    { items: ["Sword (d6)", "Baby Squig", "A second argumentative head"], appearance: "Tweedle Dee and Tweedle Dum hats with striped shirts" },
+    { items: ["Club (d6)", "Pet Bat", 'Can only say "Ug"'], appearance: "Caveman tiger skin tunic and heavy brow" },
+  ],
+};
+
+// ─── State ─────────────────────────────────────────────────────────────────
+let rolledStats = { str: null, dex: null, wil: null, hp: null };
+
+function getStrKey(str) { return str <= 9 ? "3-9" : String(str); }
+function d6()           { return Math.floor(Math.random() * 6) + 1; }
+function threeD6()      { return d6() + d6() + d6(); }
+
+// ─── Roll animation ─────────────────────────────────────────────────────────
+function animateStat(id, finalValue, delay, max, min) {
+  const el = document.getElementById(id);
+  setTimeout(() => {
+    el.classList.remove('empty');
+    el.classList.add('rolling');
+    let ticks = 0;
+    const iv = setInterval(() => {
+      el.textContent = Math.floor(Math.random() * (max - min + 1)) + min;
+      if (++ticks > 10) {
+        clearInterval(iv);
+        el.textContent = finalValue;
+        el.classList.remove('rolling');
+      }
+    }, 60);
+  }, delay);
+}
+
+// ─── Build a dropdown with 0–max, defaulting to current ─────────────────────
+function buildSelect(selectEl, max, current) {
+  selectEl.innerHTML = '';
+  for (let i = 0; i <= max; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i;
+    if (i === current) opt.selected = true;
+    selectEl.appendChild(opt);
+  }
+}
+
+// ─── ROLL ────────────────────────────────────────────────────────────────────
+function rollCharacter() {
+  // If in sheet mode, exit it first
+  if (document.body.classList.contains('sheet-mode')) resetToRoll(true);
+
+  const btn   = document.getElementById('rollBtn');
+  const keepBtn = document.getElementById('keepBtn');
+  const panel = document.getElementById('itemsPanel');
+
+  btn.disabled = true;
+  keepBtn.classList.remove('visible');
+  panel.classList.remove('visible');
+
+  const strVal = threeD6(), dexVal = threeD6(), wilVal = threeD6(), hpVal = d6();
+  rolledStats = { str: strVal, dex: dexVal, wil: wilVal, hp: hpVal };
+
+  ['str','dex','wil','hp'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '—';
+    el.classList.add('empty');
+  });
+
+  animateStat('str', strVal, 0,   18, 3);
+  animateStat('dex', dexVal, 220, 18, 3);
+  animateStat('wil', wilVal, 440, 18, 3);
+  animateStat('hp',  hpVal,  700, 6,  1);
+
+  setTimeout(() => {
+    const entry = TABLE[getStrKey(strVal)][hpVal - 1];
+    const list  = document.getElementById('itemsList');
+    list.innerHTML = '';
+
+    entry.items.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      list.appendChild(li);
+    });
+
+    if (entry.appearance) {
+      const li = document.createElement('li');
+      li.className = 'appearance-li';
+      li.innerHTML = `<span class="item-appearance">Looks like: ${entry.appearance}</span>`;
+      list.appendChild(li);
+    }
+
+    panel.classList.add('visible');
+    btn.disabled = false;
+
+    // Show Keep button
+    keepBtn.classList.add('visible');
+  }, 1400);
+}
+
+// ─── KEEP — switch to sheet mode ─────────────────────────────────────────────
+function keepCharacter() {
+  document.body.classList.add('sheet-mode');
+
+  // Build stat dropdowns with rolled max as the ceiling
+  setupStatSheet('str', rolledStats.str, 18);
+  setupStatSheet('dex', rolledStats.dex, 18);
+  setupStatSheet('wil', rolledStats.wil, 18);
+
+  // HP dropdown — rolled value is current AND max (1–6)
+  const hpSel = document.getElementById('sel-hp');
+  buildSelect(hpSel, 6, rolledStats.hp);
+  document.getElementById('max-hp').textContent = `max ${rolledStats.hp}`;
+  document.getElementById('card-hp').classList.add('sheet');
+
+  // Show add-item row
+  document.getElementById('addItemRow').classList.add('visible');
+
+  // Clear any leftover extra items
+  document.getElementById('extraItems').innerHTML = '';
+}
+
+function setupStatSheet(stat, rolled, absMax) {
+  const selEl  = document.getElementById(`sel-${stat}`);
+  const maxEl  = document.getElementById(`max-${stat}`);
+  const cardEl = document.getElementById(`card-${stat}`);
+
+  buildSelect(selEl, absMax, rolled);
+  maxEl.textContent = `max ${rolled}`;
+  cardEl.classList.add('sheet');
+}
+
+// ─── ADD EXTRA ITEM ───────────────────────────────────────────────────────────
+function addExtraItem() {
+  const container = document.getElementById('extraItems');
+  const row = document.createElement('div');
+  row.className = 'extra-item-row';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'extra-item-input';
+  input.placeholder = 'Enter item or trait…';
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('spellcheck', 'false');
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'btn-remove-item';
+  removeBtn.innerHTML = '✕';
+  removeBtn.setAttribute('aria-label', 'Remove item');
+  removeBtn.onclick = () => row.remove();
+
+  row.appendChild(input);
+  row.appendChild(removeBtn);
+  container.appendChild(row);
+
+  // Focus input on next tick (avoids iOS keyboard jump)
+  setTimeout(() => input.focus(), 50);
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetToRoll(silent) {
+  document.body.classList.remove('sheet-mode');
+
+  // Remove sheet classes
+  ['str','dex','wil'].forEach(s => document.getElementById(`card-${s}`).classList.remove('sheet'));
+  document.getElementById('card-hp').classList.remove('sheet');
+
+  // Hide add row + clear extras
+  document.getElementById('addItemRow').classList.remove('visible');
+  document.getElementById('extraItems').innerHTML = '';
+
+  // Hide items panel and keep button
+  if (!silent) {
+    document.getElementById('itemsPanel').classList.remove('visible');
+    document.getElementById('keepBtn').classList.remove('visible');
+
+    // Reset stat displays
+    ['str','dex','wil','hp'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = '—';
+      el.classList.add('empty');
+    });
+  }
+}
+</script>
+</body>
+</html>
