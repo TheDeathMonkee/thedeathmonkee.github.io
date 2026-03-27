@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inquisitorial Warband — Operative Dossier</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #b8892a;
+    --gold-light: #d4a843;
+    --gold-dim: #7a5a1a;
+    --parchment: #1a1510;
+    --paper: #201a12;
+    --ink: #c8b89a;
+    --ink-dim: #7a6a55;
+    --red: #8b1a1a;
+    --red-bright: #c0392b;
+    --border: #3a2e1e;
+    --accent: #2a3a2a;
+    --panel: #14110c;
+    --panel2: #1c1710;
+    --mono: 'Share Tech Mono', monospace;
+    --serif: 'IM Fell English', serif;
+    --display: 'Cinzel', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: var(--serif);
+    min-height: 100vh;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(184,137,42,0.03) 28px, rgba(184,137,42,0.03) 29px),
+      radial-gradient(ellipse at 20% 20%, rgba(80,40,0,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(60,20,0,0.2) 0%, transparent 60%);
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--panel);
+    border-bottom: 2px solid var(--gold-dim);
+    padding: 18px 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(184,137,42,0.04) 60px, rgba(184,137,42,0.04) 61px);
+  }
+  .aquila {
+    font-size: 2.8rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(184,137,42,0.5);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .header-text p {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+  }
+  .select-wrap {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .select-label {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+  select.char-select {
+    background: var(--paper);
+    color: var(--gold-light);
+    border: 1px solid var(--gold-dim);
+    font-family: var(--display);
+    font-size: 0.75rem;
+    padding: 7px 32px 7px 12px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8892a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select.char-select:focus { border-color: var(--gold-light); }
+  select.char-select option { background: #1a1510; }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* DOSSIER CARD */
+  .dossier {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .dossier::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(184,137,42,0.12);
+    pointer-events: none;
+  }
+
+  /* OPERATIVE HEADER */
+  .op-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(184,137,42,0.07) 0%, transparent 100%);
+  }
+  .role-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .role-label {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+  .role-name {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 30px rgba(184,137,42,0.3);
+  }
+  .name-field-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+  }
+  .field-label {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+  input.name-input {
+    background: rgba(0,0,0,0.3);
+    border: 0;
+    border-bottom: 1px solid var(--gold-dim);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 0.9rem;
+    padding: 5px 8px;
+    width: 220px;
+    letter-spacing: 0.05em;
+    outline: none;
+    text-align: right;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  input.name-input:focus { border-color: var(--gold-light); color: var(--gold-light); }
+  input.name-input::placeholder { color: var(--ink-dim); font-style: italic; }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px 8px;
+  }
+  .section-divider span {
+    font-family: var(--display);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    padding: 0 28px 20px;
+  }
+  .stat-block {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    padding: 14px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .stat-block:hover { border-color: var(--gold-dim); }
+  .stat-abbr {
+    font-family: var(--display);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: var(--gold-dim);
+  }
+  .stat-value-display {
+    font-family: var(--display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(184,137,42,0.4);
+  }
+  .stat-hp .stat-value-display { color: var(--red-bright); text-shadow: 0 0 20px rgba(192,57,43,0.4); }
+  select.stat-select {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(184,137,42,0.25);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    padding: 3px 20px 3px 6px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a5a1a' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    outline: none;
+    width: 100%;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  select.stat-select:focus { border-color: var(--gold-dim); }
+  select.stat-select option { background: #14110c; }
+
+  /* TWO COLUMN LAYOUT */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .col-panel { padding: 0 28px 24px; }
+  .col-panel:first-child { border-right: 1px solid var(--border); }
+
+  /* ITEM LIST */
+  .item-list { display: flex; flex-direction: column; gap: 8px; padding: 0 28px 6px; }
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(58,46,30,0.5);
+    border-left: 2px solid var(--gold-dim);
+    transition: border-color 0.2s;
+  }
+  .item-row:hover { border-left-color: var(--gold-light); }
+  .item-row input.item-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 0.82rem;
+    outline: none;
+    padding: 2px 4px;
+    letter-spacing: 0.02em;
+  }
+  .item-row input.item-input::placeholder { color: var(--ink-dim); font-style: italic; }
+  .item-row input.item-input:focus { color: var(--gold-light); }
+  .item-bullet {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--gold-dim);
+    flex-shrink: 0;
+  }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: rgba(139,26,26,0.4);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .remove-btn:hover { color: var(--red-bright); }
+
+  /* ADD BUTTON */
+  .add-wrap { padding: 4px 28px 20px; }
+  .add-btn {
+    background: none;
+    border: 1px dashed rgba(184,137,42,0.3);
+    color: var(--gold-dim);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    padding: 6px 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .add-btn:hover { border-color: var(--gold-light); color: var(--gold-light); background: rgba(184,137,42,0.06); }
+
+  /* TALENT PANEL */
+  .talent-section { padding: 0 28px 28px; }
+  .talent-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--gold-dim);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .talent-card::before {
+    content: '✦';
+    position: absolute;
+    top: -9px;
+    left: 16px;
+    color: var(--gold-dim);
+    background: var(--panel2);
+    padding: 0 6px;
+    font-size: 0.7rem;
+  }
+  .talent-name {
+    font-family: var(--display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .talent-desc {
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    line-height: 1.65;
+  }
+  .talent-usage {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--red-bright);
+    background: rgba(139,26,26,0.15);
+    border: 1px solid rgba(139,26,26,0.3);
+    padding: 2px 8px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  /* EQUIPMENT SECTION */
+  .equip-list { display: flex; flex-direction: column; gap: 6px; padding: 0 28px 20px; }
+  .equip-row {
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.15);
+    border-left: 2px solid rgba(58,46,30,0.8);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--ink-dim);
+  }
+  .equip-name { color: var(--ink); font-weight: bold; }
+
+  /* COMPANION CARD */
+  .companion-card {
+    margin: 0 28px 24px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-top: 2px solid rgba(184,137,42,0.4);
+  }
+  .companion-header {
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 20px;
+    background: rgba(184,137,42,0.05);
+    border-bottom: 1px solid var(--border);
+  }
+  .companion-name {
+    font-family: var(--display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+  }
+  .companion-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .companion-stat .stat-abbr { font-size: 0.5rem; }
+  .companion-stat .val {
+    font-family: var(--display);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--gold-light);
+  }
+  .companion-ability {
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+  }
+
+  /* FOOTER */
+  .dossier-footer {
+    border-top: 1px solid var(--border);
+    padding: 10px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+  }
+  .footer-code {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+  }
+  .save-indicator {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    transition: color 0.3s;
+  }
+  .save-indicator.saved { color: #4a8a4a; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .empty-state .glyph { font-size: 3rem; color: var(--gold-dim); margin-bottom: 16px; }
+  .empty-state p {
+    font-family: var(--display);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+
+  /* SEPARATOR */
+  hr.ornament {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 28px;
+    position: relative;
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .col-panel:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .op-header { grid-template-columns: 1fr; }
+    .name-field-wrap { align-items: flex-start; }
+    input.name-input { width: 100%; text-align: left; }
+    .select-wrap { margin-left: 0; align-items: flex-start; }
+    .header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="aquila">☩</div>
+  <div class="header-text">
+    <h1>Inquisitorial Warband</h1>
+    <p>OPERATIVE DOSSIER // ORDO HERETICUS // CLEARANCE VERMILLION</p>
+  </div>
+  <div class="select-wrap">
+    <span class="select-label">Select Operative</span>
+    <select class="char-select" id="charSelect">
+      <option value="">— Choose Operative —</option>
+    </select>
+  </div>
+</div>
+
+<div class="main">
+  <div class="dossier" id="dossier">
+    <div class="empty-state">
+      <div class="glyph">☩</div>
+      <p>Select an operative to access their dossier</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CHARACTER DATA ─────────────────────────────────────────────────────────
+const CHARACTERS = {
+  interrogator: {
+    id: 'interrogator',
+    role: 'Interrogator',
+    baseStats: { STR: 9, DEX: 9, WIL: 14, HP: 5 },
+    baseWeapons: ['Las Pistol (D6)', 'Augmented Arm (D6)'],
+    equipment: [
+      { name: 'Interrogator Rosette', desc: 'Can order any lower ranked imperial member. Anyone who opposes suffers -2 WIL, then a WIL check to successfully refuse.' },
+      { name: 'Auspex Scanner', desc: 'Motion, energy and life tracking.' },
+      { name: 'Comms Link', desc: '' },
+    ],
+    talents: [
+      { name: 'Inspire Through Fear', usage: '1 use per round of combat', desc: 'Pass a WIL check to allow a reroll for another nearby unit when in combat, only once per check. Must be accompanied by a spoken order or a threat.' },
+      { name: 'Condemn', usage: '1 use per combat', desc: 'Call out a target — "By the Emperor I sentence you to death!" All allies that can hear gain advantage on damage rolls against that target (roll twice and keep highest).' },
+    ],
+    companion: null,
+  },
+  psyker: {
+    id: 'psyker',
+    role: 'Psyker',
+    baseStats: { STR: 8, DEX: 10, WIL: 14, HP: 4 },
+    baseWeapons: ['Force Staff (D6)'],
+    equipment: [
+      { name: 'Comms Link', desc: '' },
+    ],
+    weaponNotes: { 'Force Staff (D6)': 'Optionally targets of medium size can be knocked prone, or objects can be knocked away.' },
+    talents: [
+      { name: 'Perception Warp', usage: '', desc: 'WIL challenge a target. Success: they are affected with your choice of the following: blinded, deafened, numb, or plagued with a hallucination of your choice. Fail: you are affected instead. Effect lasts a few seconds.' },
+      { name: 'Mind-Read', usage: '', desc: 'You can peer into the minds of others, revealing secrets and sifting through memories. It requires stillness and concentration and is incredibly uncomfortable for both parties, and it\'s never subtle.' },
+      { name: 'Psychic Shriek', usage: 'Requires Interrogator\'s permission', desc: 'WIL check. Success: all living enemies take 3 DMG. Fail: all living persons take 3 DMG. All persons affected are staggered.' },
+    ],
+    companion: null,
+  },
+  techpriest: {
+    id: 'techpriest',
+    role: 'Tech Priest',
+    baseStats: { STR: 8, DEX: 11, WIL: 13, HP: 4 },
+    baseWeapons: ['Plasma Pistol (D6)', 'Omnissiah Axe (D4)'],
+    weaponNotes: { 'Plasma Pistol (D6)': 'WIL check: Success +2 DMG, Fail take 2 DMG.' },
+    equipment: [
+      { name: 'Servo Skull', desc: 'Can scout (direct audio visual feed into retina). Can hack. Can medicae. Can carry 1 lb object.' },
+      { name: 'Medicae (2 charges)', desc: 'Heal 1 STR + Restore 2 HP. WIL check: fail loses a charge.' },
+      { name: 'Tech Repair Arm', desc: '' },
+      { name: 'Comms Link', desc: '' },
+    ],
+    talents: [
+      { name: 'Commune with the Machine Spirit', usage: '', desc: 'Can use most tech, able to hack appliances, lock and seal doors, take control of security defenses. WIL check for difficult or unconventional tasks.' },
+      { name: 'Jam', usage: '', desc: 'WIL check: can jam tech weapons or cause augment malfunction on success.' },
+    ],
+    companion: null,
+  },
+  arbitrator_mastiff: {
+    id: 'arbitrator_mastiff',
+    role: 'Arbitrator with Cyber Mastiff',
+    baseStats: { STR: 13, DEX: 12, WIL: 7, HP: 5 },
+    baseWeapons: ['Shotgun (D4 / D6)', 'Shock Baton (D6)'],
+    weaponNotes: {
+      'Shotgun (D4 / D6)': 'D4 to up to two nearby enemies. D6 to single target.',
+      'Shock Baton (D6)': 'DEX check: stun target.',
+    },
+    equipment: [
+      { name: '2× Frag Grenades', desc: 'D8 + 2 DMG.' },
+      { name: 'Cuffs', desc: '' },
+      { name: 'Comms Link', desc: '' },
+    ],
+    talents: [
+      { name: "Sic 'em", usage: '', desc: "Command Cyber Mastiff to dive and optionally bite a unit. DEX check success: if target is small to medium build, they're pinned. If target is large, they're stunned." },
+    ],
+    companion: {
+      name: 'Cyber Mastiff',
+      stats: { STR: 12, DEX: 12, HP: 6 },
+      ability: 'Bite: 3 DMG',
+    },
+  },
+  arbitrator_rookie: {
+    id: 'arbitrator_rookie',
+    role: 'Arbitrator (Rookie)',
+    baseStats: { STR: 12, DEX: 11, WIL: 6, HP: 4 },
+    baseWeapons: ['Shotgun (D4 / D6)', 'Shock Baton (D6)'],
+    weaponNotes: {
+      'Shotgun (D4 / D6)': 'D4 to up to two nearby enemies. D6 to single target.',
+      'Shock Baton (D6)': 'DEX check: stun target.',
+    },
+    equipment: [
+      { name: '1× Frag Grenade', desc: 'D8 + 2 DMG.' },
+      { name: 'Cuffs', desc: '' },
+      { name: 'Comms Link', desc: '' },
+    ],
+    talents: [
+      { name: 'Stop Resisting!', usage: '', desc: '+2 DMG to stunned and pinned targets.' },
+    ],
+    companion: null,
+  },
+};
+
+// ── LOCAL STORAGE ──────────────────────────────────────────────────────────
+const STORE_KEY = 'inquisitor_warband_v2';
+
+function loadStore() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveStore(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+let store = loadStore();
+let currentChar = null;
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function getCharData(id) {
+  if (!store[id]) store[id] = { name: '', stats: {}, weapons: [], armour: [] };
+  return store[id];
+}
+
+function statRange(stat) {
+  if (stat === 'HP') return Array.from({length: 20}, (_, i) => i + 1);
+  return Array.from({length: 20}, (_, i) => i + 1);
+}
+
+let saveTimeout = null;
+function persistAndFlash() {
+  saveStore(store);
+  const ind = document.getElementById('saveIndicator');
+  if (ind) {
+    ind.textContent = '⬤ SAVED';
+    ind.classList.add('saved');
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      ind.textContent = '⬤ AUTO-SAVE ACTIVE';
+      ind.classList.remove('saved');
+    }, 1500);
+  }
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function renderSheet(charId) {
+  currentChar = charId;
+  const char = CHARACTERS[charId];
+  const data = getCharData(charId);
+  const dossier = document.getElementById('dossier');
+
+  // Merge base stats with saved overrides
+  const stats = { ...char.baseStats, ...data.stats };
+
+  // Weapons list = base + user additions (stored as array of {value})
+  const savedWeapons = data.weapons || [];
+  const savedArmour = data.armour || [];
+
+  dossier.innerHTML = `
+    <!-- OPERATIVE HEADER -->
+    <div class="op-header">
+      <div class="role-badge">
+        <span class="role-label">Operative Designation</span>
+        <span class="role-name">${char.role}</span>
+      </div>
+      <div class="name-field-wrap">
+        <span class="field-label">Operative Name</span>
+        <input class="name-input" type="text" placeholder="Enter operative name…" value="${escHtml(data.name || '')}" id="nameInput">
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="section-divider"><span>Vital Statistics</span></div>
+    <div class="stats-grid" id="statsGrid">
+      ${Object.entries(stats).map(([key, val]) => renderStat(key, val, char.baseStats[key])).join('')}
+    </div>
+
+    <hr class="ornament">
+
+    <!-- WEAPONS & ARMOUR (two col) -->
+    <div class="two-col">
+      <div class="col-panel">
+        <div class="section-divider"><span>Weapons</span></div>
+        <div class="item-list" id="weaponList">
+          ${char.baseWeapons.map(w => renderBaseWeapon(w, char)).join('')}
+          ${savedWeapons.map((w, i) => renderAddedItem(w.value, 'weapon', i)).join('')}
+        </div>
+        <div class="add-wrap">
+          <button class="add-btn" onclick="addItem('weapon')">＋ ADD WEAPON</button>
+        </div>
+      </div>
+      <div class="col-panel">
+        <div class="section-divider"><span>Armour &amp; Gear</span></div>
+        <div class="item-list" id="armourList">
+          ${savedArmour.map((a, i) => renderAddedItem(a.value, 'armour', i)).join('')}
+        </div>
+        <div class="add-wrap">
+          <button class="add-btn" onclick="addItem('armour')">＋ ADD ARMOUR</button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="ornament">
+
+    <!-- EQUIPMENT -->
+    <div class="section-divider"><span>Equipment</span></div>
+    <div class="equip-list">
+      ${char.equipment.map(e => `
+        <div class="equip-row">
+          <span class="equip-name">${escHtml(e.name)}</span>${e.desc ? ' — ' + escHtml(e.desc) : ''}
+        </div>`).join('')}
+    </div>
+
+    ${char.companion ? renderCompanion(char.companion) : ''}
+
+    <hr class="ornament">
+
+    <!-- TALENTS -->
+    <div class="section-divider"><span>Talents</span></div>
+    <div class="talent-section">
+      ${char.talents.map(t => `
+        <div class="talent-card">
+          <div class="talent-name">${escHtml(t.name)}</div>
+          ${t.usage ? `<div class="talent-usage">${escHtml(t.usage)}</div>` : ''}
+          <div class="talent-desc">${escHtml(t.desc)}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="dossier-footer">
+      <span class="footer-code">REF: INQ-${charId.toUpperCase().replace('_', '-')}-ΨΨΨΨ // CLASSIFIED</span>
+      <span class="save-indicator" id="saveIndicator">⬤ AUTO-SAVE ACTIVE</span>
+    </div>
+  `;
+
+  // Bind name input
+  document.getElementById('nameInput').addEventListener('input', e => {
+    store[charId].name = e.target.value;
+    persistAndFlash();
+  });
+
+  // Bind stat selects
+  document.querySelectorAll('.stat-select').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const s = e.target.dataset.stat;
+      store[charId].stats[s] = parseInt(e.target.value);
+      // Update display
+      const disp = document.getElementById('statDisp_' + s);
+      if (disp) disp.textContent = e.target.value;
+      persistAndFlash();
+    });
+  });
+}
+
+function renderStat(key, val, baseVal) {
+  const range = statRange(key);
+  const isHp = key === 'HP';
+  return `
+    <div class="stat-block ${isHp ? 'stat-hp' : ''}">
+      <span class="stat-abbr">${key}</span>
+      <span class="stat-value-display" id="statDisp_${key}">${val}</span>
+      <select class="stat-select" data-stat="${key}">
+        ${range.map(n => `<option value="${n}"${n === val ? ' selected' : ''}>${n}</option>`).join('')}
+      </select>
+    </div>`;
+}
+
+function renderBaseWeapon(weaponName, char) {
+  const note = char.weaponNotes && char.weaponNotes[weaponName];
+  return `
+    <div class="item-row">
+      <span class="item-bullet">⬡</span>
+      <span style="flex:1; font-size:0.82rem; line-height:1.5;">
+        <span style="color:var(--ink)">${escHtml(weaponName)}</span>
+        ${note ? `<br><span style="color:var(--ink-dim); font-size:0.72rem; font-style:italic">${escHtml(note)}</span>` : ''}
+      </span>
+    </div>`;
+}
+
+function renderAddedItem(value, type, index) {
+  return `
+    <div class="item-row" id="${type}_row_${index}">
+      <span class="item-bullet">⬡</span>
+      <input class="item-input" type="text" placeholder="Enter ${type}…" value="${escHtml(value)}"
+        oninput="updateItem('${type}', ${index}, this.value)">
+      <button class="remove-btn" onclick="removeItem('${type}', ${index})" title="Remove">✕</button>
+    </div>`;
+}
+
+function renderCompanion(c) {
+  return `
+    <div class="section-divider"><span>Companion</span></div>
+    <div class="companion-card">
+      <div class="companion-header">
+        <span class="companion-name">${escHtml(c.name)}</span>
+        ${Object.entries(c.stats).map(([k, v]) => `
+          <div class="companion-stat">
+            <span class="stat-abbr">${k}</span>
+            <span class="val">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div class="companion-ability">${escHtml(c.ability)}</div>
+    </div>`;
+}
+
+// ── ITEM MANAGEMENT ────────────────────────────────────────────────────────
+function addItem(type) {
+  const charId = currentChar;
+  const list = type === 'weapon' ? 'weapons' : 'armour';
+  if (!store[charId][list]) store[charId][list] = [];
+  const index = store[charId][list].length;
+  store[charId][list].push({ value: '' });
+  persistAndFlash();
+
+  // Append row to list
+  const container = document.getElementById(type === 'weapon' ? 'weaponList' : 'armourList');
+  const div = document.createElement('div');
+  div.innerHTML = renderAddedItem('', type, index);
+  container.appendChild(div.firstElementChild);
+  container.lastElementChild.querySelector('input').focus();
+}
+
+function updateItem(type, index, value) {
+  const list = type === 'weapon' ? 'weapons' : 'armour';
+  if (store[currentChar][list]) store[currentChar][list][index] = { value };
+  persistAndFlash();
+}
+
+function removeItem(type, index) {
+  const list = type === 'weapon' ? 'weapons' : 'armour';
+  store[currentChar][list].splice(index, 1);
+  persistAndFlash();
+  renderSheet(currentChar);
+}
+
+// ── ESCAPE HTML ────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+(function init() {
+  const select = document.getElementById('charSelect');
+  Object.values(CHARACTERS).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.role;
+    select.appendChild(opt);
+  });
+
+  // Restore last selected char
+  const lastChar = store._lastSelected;
+  if (lastChar && CHARACTERS[lastChar]) {
+    select.value = lastChar;
+    renderSheet(lastChar);
+  }
+
+  select.addEventListener('change', e => {
+    const id = e.target.value;
+    if (!id) {
+      currentChar = null;
+      document.getElementById('dossier').innerHTML = `
+        <div class="empty-state">
+          <div class="glyph">☩</div>
+          <p>Select an operative to access their dossier</p>
+        </div>`;
+      store._lastSelected = '';
+      saveStore(store);
+      return;
+    }
+    store._lastSelected = id;
+    saveStore(store);
+    renderSheet(id);
+  });
+})();
+</script>
+</body>
+</html>
