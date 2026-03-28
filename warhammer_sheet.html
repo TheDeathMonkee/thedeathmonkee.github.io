@@ -547,6 +547,34 @@
   }
   .save-indicator.saved { color: #4a8a4a; }
 
+  .reset-btn {
+    background: none;
+    border: 1px solid rgba(139,26,26,0.35);
+    color: rgba(192,57,43,0.55);
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    padding: 4px 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover {
+    border-color: var(--red-bright);
+    color: var(--red-bright);
+    background: rgba(139,26,26,0.1);
+  }
+  .reset-btn.confirming {
+    border-color: var(--red-bright);
+    color: var(--red-bright);
+    background: rgba(139,26,26,0.15);
+    animation: pulse-warn 0.6s ease infinite alternate;
+  }
+  @keyframes pulse-warn {
+    from { opacity: 0.7; }
+    to   { opacity: 1; }
+  }
+
   /* EMPTY STATE */
   .empty-state {
     text-align: center;
@@ -667,7 +695,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: 'Frag Grenades', desc: 'D8 + 2 DMG.', chargesKey: 'frag_mastiff', chargesMax: 10, chargesDefault: 2 },
+      { name: '2× Frag Grenades', desc: 'D8 + 2 DMG.', chargesKey: 'frag_mastiff', chargesMax: 4, chargesDefault: 2 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -690,7 +718,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: 'Frag Grenade', desc: 'D8 + 2 DMG.', chargesKey: 'frag_rookie', chargesMax: 10, chargesDefault: 1 },
+      { name: '1× Frag Grenade', desc: 'D8 + 2 DMG.', chargesKey: 'frag_rookie', chargesMax: 4, chargesDefault: 1 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -820,6 +848,7 @@ function renderSheet(charId) {
     <!-- FOOTER -->
     <div class="dossier-footer">
       <span class="footer-code">REF: INQ-${charId.toUpperCase().replace('_', '-')}-ΨΨΨΨ // CLASSIFIED</span>
+      <button class="reset-btn" id="resetBtn" onclick="handleReset()">↺ RESET TO DEFAULT</button>
       <span class="save-indicator" id="saveIndicator">⬤ AUTO-SAVE ACTIVE</span>
     </div>
   `;
@@ -980,6 +1009,31 @@ function removeItem(type, index) {
 // ── ESCAPE HTML ────────────────────────────────────────────────────────────
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RESET ──────────────────────────────────────────────────────────────────
+let resetConfirmTimeout = null;
+
+function handleReset() {
+  const btn = document.getElementById('resetBtn');
+  if (!btn) return;
+
+  if (!btn.classList.contains('confirming')) {
+    // First click — ask for confirmation
+    btn.classList.add('confirming');
+    btn.textContent = '⚠ CONFIRM RESET?';
+    resetConfirmTimeout = setTimeout(() => {
+      btn.classList.remove('confirming');
+      btn.textContent = '↺ RESET TO DEFAULT';
+    }, 3000);
+  } else {
+    // Second click — actually reset
+    clearTimeout(resetConfirmTimeout);
+    const charId = currentChar;
+    store[charId] = { name: '', stats: {}, weapons: [], equipItems: [], charges: {}, companionStats: {} };
+    saveStore(store);
+    renderSheet(charId);
+  }
 }
 
 // ── THEMES ─────────────────────────────────────────────────────────────────
