@@ -23,6 +23,16 @@
     --mono: 'Share Tech Mono', monospace;
     --serif: 'IM Fell English', serif;
     --display: 'Cinzel', serif;
+
+    /* Theme accent vars — overridden per operative */
+    --theme-primary: #b8892a;
+    --theme-light: #d4a843;
+    --theme-dim: #7a5a1a;
+    --theme-glow: rgba(184,137,42,0.4);
+    --theme-subtle: rgba(184,137,42,0.07);
+    --theme-line: rgba(184,137,42,0.03);
+    --theme-bg1: rgba(80,40,0,0.3);
+    --theme-bg2: rgba(60,20,0,0.2);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,33 +42,35 @@
     color: var(--ink);
     font-family: var(--serif);
     min-height: 100vh;
+    transition: background-image 0.6s ease;
     background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(184,137,42,0.03) 28px, rgba(184,137,42,0.03) 29px),
-      radial-gradient(ellipse at 20% 20%, rgba(80,40,0,0.3) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(60,20,0,0.2) 0%, transparent 60%);
+      repeating-linear-gradient(0deg, transparent, transparent 28px, var(--theme-line) 28px, var(--theme-line) 29px),
+      radial-gradient(ellipse at 20% 20%, var(--theme-bg1) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, var(--theme-bg2) 0%, transparent 60%);
   }
 
   /* HEADER */
   .header {
     background: var(--panel);
-    border-bottom: 2px solid var(--gold-dim);
+    border-bottom: 2px solid var(--theme-dim);
     padding: 18px 30px;
     display: flex;
     align-items: center;
     gap: 20px;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.5s ease;
   }
   .header::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(184,137,42,0.04) 60px, rgba(184,137,42,0.04) 61px);
+    background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(var(--theme-rgb),0.04) 60px, rgba(var(--theme-rgb),0.04) 61px);
   }
   .aquila {
     font-size: 2.8rem;
-    color: var(--gold);
-    text-shadow: 0 0 20px rgba(184,137,42,0.5);
+    color: var(--theme-primary);
+    text-shadow: 0 0 20px var(--theme-glow);
     line-height: 1;
     flex-shrink: 0;
   }
@@ -66,7 +78,7 @@
     font-family: var(--display);
     font-size: 1.15rem;
     font-weight: 900;
-    color: var(--gold-light);
+    color: var(--theme-light);
     letter-spacing: 0.25em;
     text-transform: uppercase;
   }
@@ -90,13 +102,13 @@
     font-family: var(--mono);
     font-size: 0.55rem;
     letter-spacing: 0.2em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     text-transform: uppercase;
   }
   select.char-select {
     background: var(--paper);
-    color: var(--gold-light);
-    border: 1px solid var(--gold-dim);
+    color: var(--theme-light);
+    border: 1px solid var(--theme-dim);
     font-family: var(--display);
     font-size: 0.75rem;
     padding: 7px 32px 7px 12px;
@@ -111,7 +123,7 @@
     outline: none;
     transition: border-color 0.2s;
   }
-  select.char-select:focus { border-color: var(--gold-light); }
+  select.char-select:focus { border-color: var(--theme-light); }
   select.char-select option { background: #1a1510; }
 
   /* MAIN LAYOUT */
@@ -128,7 +140,7 @@
     content: '';
     position: absolute;
     inset: 4px;
-    border: 1px solid rgba(184,137,42,0.12);
+    border: 1px solid rgba(var(--theme-rgb),0.12);
     pointer-events: none;
   }
 
@@ -140,7 +152,7 @@
     gap: 20px;
     padding: 22px 28px 18px;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(184,137,42,0.07) 0%, transparent 100%);
+    background: linear-gradient(180deg, var(--theme-subtle) 0%, transparent 100%);
   }
   .role-badge {
     display: flex;
@@ -151,16 +163,16 @@
     font-family: var(--mono);
     font-size: 0.5rem;
     letter-spacing: 0.3em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     text-transform: uppercase;
   }
   .role-name {
     font-family: var(--display);
     font-size: 1.5rem;
     font-weight: 900;
-    color: var(--gold-light);
+    color: var(--theme-light);
     letter-spacing: 0.08em;
-    text-shadow: 0 0 30px rgba(184,137,42,0.3);
+    text-shadow: 0 0 30px var(--theme-glow);
   }
   .name-field-wrap {
     display: flex;
@@ -172,13 +184,13 @@
     font-family: var(--mono);
     font-size: 0.5rem;
     letter-spacing: 0.25em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     text-transform: uppercase;
   }
   input.name-input {
     background: rgba(0,0,0,0.3);
     border: 0;
-    border-bottom: 1px solid var(--gold-dim);
+    border-bottom: 1px solid var(--theme-dim);
     color: var(--ink);
     font-family: var(--serif);
     font-size: 0.9rem;
@@ -189,7 +201,7 @@
     text-align: right;
     transition: border-color 0.2s, color 0.2s;
   }
-  input.name-input:focus { border-color: var(--gold-light); color: var(--gold-light); }
+  input.name-input:focus { border-color: var(--theme-light); color: var(--theme-light); }
   input.name-input::placeholder { color: var(--ink-dim); font-style: italic; }
 
   /* SECTION DIVIDER */
@@ -204,7 +216,7 @@
     font-size: 0.6rem;
     font-weight: 600;
     letter-spacing: 0.35em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     text-transform: uppercase;
     white-space: nowrap;
   }
@@ -212,7 +224,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, var(--gold-dim), transparent);
+    background: linear-gradient(90deg, var(--theme-dim), transparent);
   }
 
   /* STATS GRID */
@@ -233,21 +245,21 @@
     transition: border-color 0.2s;
     position: relative;
   }
-  .stat-block:hover { border-color: var(--gold-dim); }
+  .stat-block:hover { border-color: var(--theme-dim); }
   .stat-abbr {
     font-family: var(--display);
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.25em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
   }
   .stat-value-display {
     font-family: var(--display);
     font-size: 2rem;
     font-weight: 900;
-    color: var(--gold-light);
+    color: var(--theme-light);
     line-height: 1;
-    text-shadow: 0 0 20px rgba(184,137,42,0.4);
+    text-shadow: 0 0 20px var(--theme-glow);
   }
   .stat-hp .stat-value-display { color: var(--red-bright); text-shadow: 0 0 20px rgba(192,57,43,0.4); }
   .stat-base {
@@ -260,10 +272,10 @@
     width: 100%;
     text-align: center;
   }
-  .stat-base span { color: var(--gold-dim); }
+  .stat-base span { color: var(--theme-dim); }
   select.stat-select {
     background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(184,137,42,0.25);
+    border: 1px solid rgba(var(--theme-rgb),0.25);
     color: var(--ink);
     font-family: var(--mono);
     font-size: 0.6rem;
@@ -279,7 +291,7 @@
     text-align: center;
     transition: border-color 0.2s;
   }
-  select.stat-select:focus { border-color: var(--gold-dim); }
+  select.stat-select:focus { border-color: var(--theme-dim); }
   select.stat-select option { background: #14110c; }
 
   /* WEAPONS PANEL */
@@ -294,10 +306,10 @@
     padding: 7px 10px;
     background: rgba(0,0,0,0.2);
     border: 1px solid rgba(58,46,30,0.5);
-    border-left: 2px solid var(--gold-dim);
+    border-left: 2px solid var(--theme-dim);
     transition: border-color 0.2s;
   }
-  .item-row:hover { border-left-color: var(--gold-light); }
+  .item-row:hover { border-left-color: var(--theme-light); }
   .item-row input.item-input {
     flex: 1;
     background: transparent;
@@ -310,11 +322,11 @@
     letter-spacing: 0.02em;
   }
   .item-row input.item-input::placeholder { color: var(--ink-dim); font-style: italic; }
-  .item-row input.item-input:focus { color: var(--gold-light); }
+  .item-row input.item-input:focus { color: var(--theme-light); }
   .item-bullet {
     font-family: var(--mono);
     font-size: 0.6rem;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     flex-shrink: 0;
   }
   .remove-btn {
@@ -334,8 +346,8 @@
   .add-wrap { padding: 4px 28px 20px; }
   .add-btn {
     background: none;
-    border: 1px dashed rgba(184,137,42,0.3);
-    color: var(--gold-dim);
+    border: 1px dashed rgba(var(--theme-rgb),0.3);
+    color: var(--theme-dim);
     font-family: var(--mono);
     font-size: 0.6rem;
     letter-spacing: 0.2em;
@@ -347,14 +359,14 @@
     align-items: center;
     gap: 8px;
   }
-  .add-btn:hover { border-color: var(--gold-light); color: var(--gold-light); background: rgba(184,137,42,0.06); }
+  .add-btn:hover { border-color: var(--theme-light); color: var(--theme-light); background: var(--theme-subtle); }
 
   /* TALENT PANEL */
   .talent-section { padding: 0 28px 28px; }
   .talent-card {
     background: rgba(0,0,0,0.3);
     border: 1px solid var(--border);
-    border-top: 2px solid var(--gold-dim);
+    border-top: 2px solid var(--theme-dim);
     padding: 16px 18px;
     margin-bottom: 10px;
     position: relative;
@@ -364,7 +376,7 @@
     position: absolute;
     top: -9px;
     left: 16px;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     background: var(--panel2);
     padding: 0 6px;
     font-size: 0.7rem;
@@ -373,7 +385,7 @@
     font-family: var(--display);
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--gold-light);
+    color: var(--theme-light);
     letter-spacing: 0.1em;
     margin-bottom: 8px;
   }
@@ -421,14 +433,14 @@
     font-family: var(--mono);
     font-size: 0.5rem;
     letter-spacing: 0.15em;
-    color: var(--gold-dim);
+    color: var(--theme-dim);
     text-transform: uppercase;
     white-space: nowrap;
   }
   select.charge-select {
     background: rgba(0,0,0,0.5);
-    border: 1px solid var(--gold-dim);
-    color: var(--gold-light);
+    border: 1px solid var(--theme-dim);
+    color: var(--theme-light);
     font-family: var(--display);
     font-size: 0.75rem;
     font-weight: 600;
@@ -444,7 +456,7 @@
     text-align: center;
     transition: border-color 0.2s, color 0.2s;
   }
-  select.charge-select:focus { border-color: var(--gold-light); }
+  select.charge-select:focus { border-color: var(--theme-light); }
   select.charge-select option { background: #14110c; }
   select.charge-select.depleted { color: var(--red-bright); border-color: var(--red); }
 
@@ -453,7 +465,7 @@
     margin: 0 28px 24px;
     background: rgba(0,0,0,0.3);
     border: 1px solid var(--border);
-    border-top: 2px solid rgba(184,137,42,0.4);
+    border-top: 2px solid rgba(var(--theme-rgb),0.4);
   }
   .companion-header {
     padding: 12px 16px;
@@ -461,14 +473,14 @@
     grid-template-columns: 1fr auto auto auto;
     align-items: center;
     gap: 20px;
-    background: rgba(184,137,42,0.05);
+    background: var(--theme-subtle);
     border-bottom: 1px solid var(--border);
   }
   .companion-name {
     font-family: var(--display);
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--gold-light);
+    color: var(--theme-light);
     letter-spacing: 0.08em;
   }
   .companion-stat {
@@ -482,12 +494,12 @@
     font-family: var(--display);
     font-size: 1.1rem;
     font-weight: 900;
-    color: var(--gold-light);
+    color: var(--theme-light);
   }
   select.companion-stat-select {
     background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(184,137,42,0.25);
-    color: var(--gold-light);
+    border: 1px solid rgba(var(--theme-rgb),0.25);
+    color: var(--theme-light);
     font-family: var(--display);
     font-size: 0.75rem;
     font-weight: 600;
@@ -503,7 +515,7 @@
     text-align: center;
     transition: border-color 0.2s;
   }
-  select.companion-stat-select:focus { border-color: var(--gold-light); }
+  select.companion-stat-select:focus { border-color: var(--theme-light); }
   select.companion-stat-select option { background: #14110c; }
   .companion-ability {
     padding: 10px 16px;
@@ -655,7 +667,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: '2× Frag Grenades', desc: 'D8 + 2 DMG.', chargesKey: 'frag_mastiff', chargesMax: 4, chargesDefault: 2 },
+      { name: 'Frag Grenades', desc: 'D8 + 2 DMG.', chargesKey: 'frag_mastiff', chargesMax: 10, chargesDefault: 2 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -678,7 +690,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: '1× Frag Grenade', desc: 'D8 + 2 DMG.', chargesKey: 'frag_rookie', chargesMax: 4, chargesDefault: 1 },
+      { name: 'Frag Grenade', desc: 'D8 + 2 DMG.', chargesKey: 'frag_rookie', chargesMax: 10, chargesDefault: 1 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -970,6 +982,36 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── THEMES ─────────────────────────────────────────────────────────────────
+const THEMES = {
+  interrogator:       { primary: '#c9a227', light: '#e8bc3a', dim: '#8a6b18', rgb: '201,162,39',  bg1: 'rgba(90,60,0,0.3)',   bg2: 'rgba(70,45,0,0.2)',  line: 'rgba(201,162,39,0.04)', subtle: 'rgba(201,162,39,0.07)', glow: 'rgba(201,162,39,0.4)' },
+  psyker:             { primary: '#3a6ea8', light: '#5b9bd5', dim: '#264d78', rgb: '58,110,168',  bg1: 'rgba(0,20,60,0.35)',  bg2: 'rgba(0,10,50,0.25)', line: 'rgba(58,110,168,0.04)', subtle: 'rgba(58,110,168,0.08)', glow: 'rgba(91,155,213,0.35)' },
+  techpriest:         { primary: '#a82020', light: '#d44040', dim: '#6e1515', rgb: '168,32,32',   bg1: 'rgba(60,0,0,0.35)',   bg2: 'rgba(45,0,0,0.25)',  line: 'rgba(168,32,32,0.04)', subtle: 'rgba(168,32,32,0.08)', glow: 'rgba(212,64,64,0.35)' },
+  arbitrator_mastiff: { primary: '#7a7a7a', light: '#a8a8a8', dim: '#525252', rgb: '122,122,122', bg1: 'rgba(30,30,30,0.4)',  bg2: 'rgba(20,20,20,0.3)', line: 'rgba(122,122,122,0.04)', subtle: 'rgba(122,122,122,0.07)', glow: 'rgba(168,168,168,0.3)' },
+  arbitrator_rookie:  { primary: '#7a7a7a', light: '#a8a8a8', dim: '#525252', rgb: '122,122,122', bg1: 'rgba(30,30,30,0.4)',  bg2: 'rgba(20,20,20,0.3)', line: 'rgba(122,122,122,0.04)', subtle: 'rgba(122,122,122,0.07)', glow: 'rgba(168,168,168,0.3)' },
+};
+
+const DEFAULT_THEME = { primary: '#b8892a', light: '#d4a843', dim: '#7a5a1a', rgb: '184,137,42', bg1: 'rgba(80,40,0,0.3)', bg2: 'rgba(60,20,0,0.2)', line: 'rgba(184,137,42,0.03)', subtle: 'rgba(184,137,42,0.07)', glow: 'rgba(184,137,42,0.4)' };
+
+function applyTheme(charId) {
+  const t = (charId && THEMES[charId]) ? THEMES[charId] : DEFAULT_THEME;
+  const root = document.documentElement;
+  root.style.setProperty('--theme-primary', t.primary);
+  root.style.setProperty('--theme-light',   t.light);
+  root.style.setProperty('--theme-dim',     t.dim);
+  root.style.setProperty('--theme-rgb',     t.rgb);
+  root.style.setProperty('--theme-glow',    t.glow);
+  root.style.setProperty('--theme-subtle',  t.subtle);
+  root.style.setProperty('--theme-line',    t.line);
+  root.style.setProperty('--theme-bg1',     t.bg1);
+  root.style.setProperty('--theme-bg2',     t.bg2);
+  // Rebuild body background so the gradient picks up new vars
+  document.body.style.backgroundImage = `
+    repeating-linear-gradient(0deg, transparent, transparent 28px, ${t.line} 28px, ${t.line} 29px),
+    radial-gradient(ellipse at 20% 20%, ${t.bg1} 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, ${t.bg2} 0%, transparent 60%)`;
+}
+
 // ── INIT ───────────────────────────────────────────────────────────────────
 (function init() {
   const select = document.getElementById('charSelect');
@@ -984,11 +1026,13 @@ function escHtml(s) {
   const lastChar = store._lastSelected;
   if (lastChar && CHARACTERS[lastChar]) {
     select.value = lastChar;
+    applyTheme(lastChar);
     renderSheet(lastChar);
   }
 
   select.addEventListener('change', e => {
     const id = e.target.value;
+    applyTheme(id || null);
     if (!id) {
       currentChar = null;
       document.getElementById('dossier').innerHTML = `
