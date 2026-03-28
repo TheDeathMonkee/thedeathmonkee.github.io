@@ -404,8 +404,49 @@
     font-size: 0.8rem;
     line-height: 1.5;
     color: var(--ink-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
+  .equip-text { flex: 1; }
   .equip-name { color: var(--ink); font-weight: bold; }
+  .charge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .charge-label {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  select.charge-select {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-light);
+    font-family: var(--display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 24px 3px 10px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a5a1a' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    outline: none;
+    min-width: 52px;
+    text-align: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  select.charge-select:focus { border-color: var(--gold-light); }
+  select.charge-select option { background: #14110c; }
+  select.charge-select.depleted { color: var(--red-bright); border-color: var(--red); }
 
   /* COMPANION CARD */
   .companion-card {
@@ -443,6 +484,27 @@
     font-weight: 900;
     color: var(--gold-light);
   }
+  select.companion-stat-select {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(184,137,42,0.25);
+    color: var(--gold-light);
+    font-family: var(--display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 18px 3px 6px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%237a5a1a' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    outline: none;
+    min-width: 48px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  select.companion-stat-select:focus { border-color: var(--gold-light); }
+  select.companion-stat-select option { background: #14110c; }
   .companion-ability {
     padding: 10px 16px;
     font-size: 0.78rem;
@@ -573,7 +635,7 @@ const CHARACTERS = {
     weaponNotes: { 'Plasma Pistol (D6)': 'WIL check: Success +2 DMG, Fail take 2 DMG.' },
     equipment: [
       { name: 'Servo Skull', desc: 'Can scout (direct audio visual feed into retina). Can hack. Can medicae. Can carry 1 lb object.' },
-      { name: 'Medicae (2 charges)', desc: 'Heal 1 STR + Restore 2 HP. WIL check: fail loses a charge.' },
+      { name: 'Medicae', desc: 'Heal 1 STR + Restore 2 HP. WIL check: fail loses a charge.', chargesKey: 'medicae', chargesMax: 4, chargesDefault: 2 },
       { name: 'Tech Repair Arm', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -593,7 +655,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: '2× Frag Grenades', desc: 'D8 + 2 DMG.' },
+      { name: '2× Frag Grenades', desc: 'D8 + 2 DMG.', chargesKey: 'frag_mastiff', chargesMax: 4, chargesDefault: 2 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -616,7 +678,7 @@ const CHARACTERS = {
       'Shock Baton (D6)': 'DEX check: stun target.',
     },
     equipment: [
-      { name: '1× Frag Grenade', desc: 'D8 + 2 DMG.' },
+      { name: '1× Frag Grenade', desc: 'D8 + 2 DMG.', chargesKey: 'frag_rookie', chargesMax: 4, chargesDefault: 1 },
       { name: 'Cuffs', desc: '' },
       { name: 'Comms Link', desc: '' },
     ],
@@ -644,8 +706,9 @@ let currentChar = null;
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 function getCharData(id) {
-  if (!store[id]) store[id] = { name: '', stats: {}, weapons: [], equipItems: [] };
+  if (!store[id]) store[id] = { name: '', stats: {}, weapons: [], equipItems: [], charges: {} };
   if (!store[id].equipItems) store[id].equipItems = [];
+  if (!store[id].charges) store[id].charges = {};
   return store[id];
 }
 
@@ -720,17 +783,14 @@ function renderSheet(charId) {
     <!-- EQUIPMENT -->
     <div class="section-divider"><span>Equipment</span></div>
     <div class="equip-list" id="equipList">
-      ${char.equipment.map(e => `
-        <div class="equip-row">
-          <span class="equip-name">${escHtml(e.name)}</span>${e.desc ? ' — ' + escHtml(e.desc) : ''}
-        </div>`).join('')}
+      ${char.equipment.map(e => renderEquipRow(e, data)).join('')}
       ${savedEquipItems.map((e, i) => renderAddedItem(e.value, 'equip', i)).join('')}
     </div>
     <div class="add-wrap">
       <button class="add-btn" onclick="addItem('equip')">＋ ADD ITEM</button>
     </div>
 
-    ${char.companion ? renderCompanion(char.companion) : ''}
+    ${char.companion ? renderCompanion(char.companion, charId, data) : ''}
 
     <hr class="ornament">
 
@@ -769,6 +829,27 @@ function renderSheet(charId) {
       persistAndFlash();
     });
   });
+
+  // Bind charge selects
+  document.querySelectorAll('.charge-select').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const key = e.target.dataset.chargeKey;
+      if (!store[charId].charges) store[charId].charges = {};
+      store[charId].charges[key] = parseInt(e.target.value);
+      e.target.classList.toggle('depleted', parseInt(e.target.value) === 0);
+      persistAndFlash();
+    });
+  });
+
+  // Bind companion stat selects
+  document.querySelectorAll('.companion-stat-select').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const k = e.target.dataset.companionStat;
+      if (!store[charId].companionStats) store[charId].companionStats = {};
+      store[charId].companionStats[k] = parseInt(e.target.value);
+      persistAndFlash();
+    });
+  });
 }
 
 function renderStat(key, val, baseVal) {
@@ -783,6 +864,31 @@ function renderStat(key, val, baseVal) {
         ${range.map(n => `<option value="${n}"${n === val ? ' selected' : ''}>${n}</option>`).join('')}
       </select>
       <div class="stat-base">BASE <span>${baseVal}</span></div>
+    </div>`;
+}
+
+function renderEquipRow(e, data) {
+  let chargesHtml = '';
+  if (e.chargesKey) {
+    const saved = data.charges && data.charges[e.chargesKey] !== undefined
+      ? data.charges[e.chargesKey]
+      : e.chargesDefault;
+    const depleted = saved === 0 ? ' depleted' : '';
+    const options = Array.from({ length: e.chargesMax + 1 }, (_, i) =>
+      `<option value="${i}"${i === saved ? ' selected' : ''}>${i}</option>`
+    ).join('');
+    chargesHtml = `
+      <div class="charge-wrap">
+        <span class="charge-label">Charges</span>
+        <select class="charge-select${depleted}" data-charge-key="${e.chargesKey}">${options}</select>
+      </div>`;
+  }
+  return `
+    <div class="equip-row">
+      <span class="equip-text">
+        <span class="equip-name">${escHtml(e.name)}</span>${e.desc ? ' — ' + escHtml(e.desc) : ''}
+      </span>
+      ${chargesHtml}
     </div>`;
 }
 
@@ -808,17 +914,23 @@ function renderAddedItem(value, type, index) {
     </div>`;
 }
 
-function renderCompanion(c) {
+function renderCompanion(c, charId, data) {
+  const companionStats = (data.companionStats) || {};
   return `
     <div class="section-divider"><span>Companion</span></div>
     <div class="companion-card">
       <div class="companion-header">
         <span class="companion-name">${escHtml(c.name)}</span>
-        ${Object.entries(c.stats).map(([k, v]) => `
+        ${Object.entries(c.stats).map(([k, baseV]) => {
+          const val = companionStats[k] !== undefined ? companionStats[k] : baseV;
+          const opts = Array.from({length: 20}, (_, i) => i + 1)
+            .map(n => `<option value="${n}"${n === val ? ' selected' : ''}>${n}</option>`).join('');
+          return `
           <div class="companion-stat">
             <span class="stat-abbr">${k}</span>
-            <span class="val">${v}</span>
-          </div>`).join('')}
+            <select class="companion-stat-select" data-companion-stat="${k}">${opts}</select>
+          </div>`;
+        }).join('')}
       </div>
       <div class="companion-ability">${escHtml(c.ability)}</div>
     </div>`;
