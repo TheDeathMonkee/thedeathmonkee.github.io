@@ -250,6 +250,17 @@
     text-shadow: 0 0 20px rgba(184,137,42,0.4);
   }
   .stat-hp .stat-value-display { color: var(--red-bright); text-shadow: 0 0 20px rgba(192,57,43,0.4); }
+  .stat-base {
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-dim);
+    border-top: 1px solid rgba(58,46,30,0.6);
+    padding-top: 6px;
+    width: 100%;
+    text-align: center;
+  }
+  .stat-base span { color: var(--gold-dim); }
   select.stat-select {
     background: rgba(0,0,0,0.4);
     border: 1px solid rgba(184,137,42,0.25);
@@ -271,10 +282,8 @@
   select.stat-select:focus { border-color: var(--gold-dim); }
   select.stat-select option { background: #14110c; }
 
-  /* TWO COLUMN LAYOUT */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  /* WEAPONS PANEL */
   .col-panel { padding: 0 28px 24px; }
-  .col-panel:first-child { border-right: 1px solid var(--border); }
 
   /* ITEM LIST */
   .item-list { display: flex; flex-direction: column; gap: 8px; padding: 0 28px 6px; }
@@ -488,8 +497,6 @@
 
   @media (max-width: 640px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .two-col { grid-template-columns: 1fr; }
-    .col-panel:first-child { border-right: none; border-bottom: 1px solid var(--border); }
     .op-header { grid-template-columns: 1fr; }
     .name-field-wrap { align-items: flex-start; }
     input.name-input { width: 100%; text-align: left; }
@@ -637,12 +644,12 @@ let currentChar = null;
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 function getCharData(id) {
-  if (!store[id]) store[id] = { name: '', stats: {}, weapons: [], armour: [] };
+  if (!store[id]) store[id] = { name: '', stats: {}, weapons: [], equipItems: [] };
+  if (!store[id].equipItems) store[id].equipItems = [];
   return store[id];
 }
 
 function statRange(stat) {
-  if (stat === 'HP') return Array.from({length: 20}, (_, i) => i + 1);
   return Array.from({length: 20}, (_, i) => i + 1);
 }
 
@@ -671,9 +678,9 @@ function renderSheet(charId) {
   // Merge base stats with saved overrides
   const stats = { ...char.baseStats, ...data.stats };
 
-  // Weapons list = base + user additions (stored as array of {value})
+  // Weapons list = base + user additions
   const savedWeapons = data.weapons || [];
-  const savedArmour = data.armour || [];
+  const savedEquipItems = data.equipItems || [];
 
   dossier.innerHTML = `
     <!-- OPERATIVE HEADER -->
@@ -696,26 +703,15 @@ function renderSheet(charId) {
 
     <hr class="ornament">
 
-    <!-- WEAPONS & ARMOUR (two col) -->
-    <div class="two-col">
-      <div class="col-panel">
-        <div class="section-divider"><span>Weapons</span></div>
-        <div class="item-list" id="weaponList">
-          ${char.baseWeapons.map(w => renderBaseWeapon(w, char)).join('')}
-          ${savedWeapons.map((w, i) => renderAddedItem(w.value, 'weapon', i)).join('')}
-        </div>
-        <div class="add-wrap">
-          <button class="add-btn" onclick="addItem('weapon')">＋ ADD WEAPON</button>
-        </div>
+    <!-- WEAPONS -->
+    <div class="col-panel">
+      <div class="section-divider"><span>Weapons</span></div>
+      <div class="item-list" id="weaponList">
+        ${char.baseWeapons.map(w => renderBaseWeapon(w, char)).join('')}
+        ${savedWeapons.map((w, i) => renderAddedItem(w.value, 'weapon', i)).join('')}
       </div>
-      <div class="col-panel">
-        <div class="section-divider"><span>Armour &amp; Gear</span></div>
-        <div class="item-list" id="armourList">
-          ${savedArmour.map((a, i) => renderAddedItem(a.value, 'armour', i)).join('')}
-        </div>
-        <div class="add-wrap">
-          <button class="add-btn" onclick="addItem('armour')">＋ ADD ARMOUR</button>
-        </div>
+      <div class="add-wrap">
+        <button class="add-btn" onclick="addItem('weapon')">＋ ADD WEAPON</button>
       </div>
     </div>
 
@@ -723,11 +719,15 @@ function renderSheet(charId) {
 
     <!-- EQUIPMENT -->
     <div class="section-divider"><span>Equipment</span></div>
-    <div class="equip-list">
+    <div class="equip-list" id="equipList">
       ${char.equipment.map(e => `
         <div class="equip-row">
           <span class="equip-name">${escHtml(e.name)}</span>${e.desc ? ' — ' + escHtml(e.desc) : ''}
         </div>`).join('')}
+      ${savedEquipItems.map((e, i) => renderAddedItem(e.value, 'equip', i)).join('')}
+    </div>
+    <div class="add-wrap">
+      <button class="add-btn" onclick="addItem('equip')">＋ ADD ITEM</button>
     </div>
 
     ${char.companion ? renderCompanion(char.companion) : ''}
@@ -774,6 +774,7 @@ function renderSheet(charId) {
 function renderStat(key, val, baseVal) {
   const range = statRange(key);
   const isHp = key === 'HP';
+  const changed = val !== baseVal;
   return `
     <div class="stat-block ${isHp ? 'stat-hp' : ''}">
       <span class="stat-abbr">${key}</span>
@@ -781,6 +782,7 @@ function renderStat(key, val, baseVal) {
       <select class="stat-select" data-stat="${key}">
         ${range.map(n => `<option value="${n}"${n === val ? ' selected' : ''}>${n}</option>`).join('')}
       </select>
+      <div class="stat-base">BASE <span>${baseVal}</span></div>
     </div>`;
 }
 
@@ -825,14 +827,13 @@ function renderCompanion(c) {
 // ── ITEM MANAGEMENT ────────────────────────────────────────────────────────
 function addItem(type) {
   const charId = currentChar;
-  const list = type === 'weapon' ? 'weapons' : 'armour';
+  const list = type === 'weapon' ? 'weapons' : 'equipItems';
   if (!store[charId][list]) store[charId][list] = [];
   const index = store[charId][list].length;
   store[charId][list].push({ value: '' });
   persistAndFlash();
 
-  // Append row to list
-  const container = document.getElementById(type === 'weapon' ? 'weaponList' : 'armourList');
+  const container = document.getElementById(type === 'weapon' ? 'weaponList' : 'equipList');
   const div = document.createElement('div');
   div.innerHTML = renderAddedItem('', type, index);
   container.appendChild(div.firstElementChild);
@@ -840,13 +841,13 @@ function addItem(type) {
 }
 
 function updateItem(type, index, value) {
-  const list = type === 'weapon' ? 'weapons' : 'armour';
+  const list = type === 'weapon' ? 'weapons' : 'equipItems';
   if (store[currentChar][list]) store[currentChar][list][index] = { value };
   persistAndFlash();
 }
 
 function removeItem(type, index) {
-  const list = type === 'weapon' ? 'weapons' : 'armour';
+  const list = type === 'weapon' ? 'weapons' : 'equipItems';
   store[currentChar][list].splice(index, 1);
   persistAndFlash();
   renderSheet(currentChar);
