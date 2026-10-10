@@ -1,0 +1,378 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Scute Swarm Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  /* Layout: one centred column. Beetle header, three counters, a mode switch,
+     a big shell-coloured button, then a carapace-green result panel with a ledger. */
+  :root {
+    --bg: #7cc47f;          /* plain leaf green */
+    --surface: #f4f8ec;     /* leaf-white card */
+    --surface-2: #dbe7cc;   /* pressed / track */
+    --fg: #14301f;          /* deep carapace ink */
+    --muted: #25502f;
+    --line: #5f9c63;
+    --accent: #1f8a4c;      /* emerald shell */
+    --accent-fg: #f3fbe9;
+    --gold: #b8841f;        /* bronze sheen */
+    --panel: #153d27;       /* result carapace */
+    --panel-fg: #e4f5d3;
+    --panel-muted: #9cc3a2;
+    --panel-line: #2c5a3d;
+    --focus: #8a5a00;
+    --font-display: "Bungee", "Impact", "Arial Black", sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14472a;
+      --surface: #16291d;
+      --surface-2: #0b1710;
+      --fg: #e1efd8;
+      --muted: #b4d2ba;
+      --line: #3a7a53;
+      --accent: #4cc47f;
+      --accent-fg: #07170d;
+      --gold: #e2b54e;
+      --panel: #1c4a2f;
+      --panel-fg: #eaf8da;
+      --panel-muted: #a5cdac;
+      --panel-line: #34694a;
+      --focus: #f0c765;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14472a;
+    --surface: #16291d;
+    --surface-2: #0b1710;
+    --fg: #e1efd8;
+    --muted: #b4d2ba;
+    --line: #3a7a53;
+    --accent: #4cc47f;
+    --accent-fg: #07170d;
+    --gold: #e2b54e;
+    --panel: #1c4a2f;
+    --panel-fg: #eaf8da;
+    --panel-muted: #a5cdac;
+    --panel-line: #34694a;
+    --focus: #f0c765;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    padding-inline: 16px;
+    padding-block: 28px 48px;
+  }
+  .wrap { max-width: 640px; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
+
+  header { display: flex; align-items: center; gap: 16px; }
+  .beetle { width: 72px; height: 72px; flex: none; }
+  .beetle .shell-l, .beetle .shell-r { fill: var(--accent); }
+  .beetle .shell-r { filter: brightness(0.9); }
+  .beetle .head, .beetle .pronotum { fill: var(--panel); }
+  .beetle .limb { stroke: var(--panel); fill: none; stroke-width: 3.2; stroke-linecap: round; }
+  .beetle .seam { stroke: var(--panel); stroke-width: 2.4; fill: none; stroke-linecap: round; }
+  .beetle .sheen { fill: var(--gold); opacity: .55; }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.7rem, 7vw, 2.4rem);
+    line-height: 1.02;
+    letter-spacing: .01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: .95rem; text-wrap: balance; }
+
+  .controls { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .counter {
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-width: 0;
+  }
+  .counter label { font-weight: 700; font-size: .95rem; line-height: 1.25; }
+  .counter .hint { color: var(--muted); font-size: .82rem; line-height: 1.3; margin-top: -6px; }
+  .stepper { display: grid; grid-template-columns: 44px 1fr 44px; gap: 8px; align-items: stretch; }
+  .stepper button {
+    font: 700 1.4rem/1 var(--font-body);
+    background: var(--surface-2);
+    color: var(--fg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    min-height: 48px;
+  }
+  .stepper button:hover { border-color: var(--accent); }
+  .stepper button:active { transform: translateY(1px); }
+  .stepper input {
+    width: 100%; min-width: 0;
+    text-align: center;
+    font: 700 1.5rem/1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    background: var(--surface-2);
+    color: var(--fg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .stepper input::-webkit-outer-spin-button,
+  .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  fieldset.mode { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  fieldset.mode legend { font-weight: 700; font-size: .95rem; padding: 0; margin-bottom: 8px; }
+  .seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+  .seg label {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg .t { font-weight: 700; }
+  .seg .d { color: var(--muted); font-size: .82rem; line-height: 1.3; }
+  .seg label:has(input:checked) { border-color: var(--accent); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--accent); }
+  .seg label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .go {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 5.5vw, 1.7rem);
+    letter-spacing: .03em;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 0;
+    border-bottom: 5px solid var(--gold);
+    border-radius: 16px 16px 12px 12px;
+    padding: 18px 20px 14px;
+    width: 100%;
+    cursor: pointer;
+  }
+  .go:hover { filter: brightness(1.06); }
+  .go:active { transform: translateY(2px); border-bottom-width: 3px; }
+
+  button:focus-visible, .stepper input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .result {
+    background: var(--panel);
+    color: var(--panel-fg);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 14px;
+    border: 2px solid var(--panel-line);
+    min-width: 0;
+    transition: opacity .2s;
+  }
+  .result.stale { opacity: .6; }
+  .result .eyebrow { font-size: .78rem; text-transform: uppercase; letter-spacing: .14em; color: var(--panel-muted); font-weight: 700; margin: 0; }
+  .total { font-family: var(--font-display); font-size: clamp(2.4rem, 12vw, 4.2rem); line-height: 1; margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+  .total.long { font-size: clamp(1.5rem, 6.5vw, 2.4rem); }
+  .added { font-family: var(--font-mono); font-weight: 700; font-size: 1.15rem; color: var(--gold); margin: 0; overflow-wrap: anywhere; }
+  .stale-note { font-size: .85rem; color: var(--panel-muted); margin: 0; min-height: 1.3em; }
+  .ledger-wrap { overflow-x: auto; border-top: 1px solid var(--panel-line); padding-top: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: right; padding: 5px 10px 5px 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--panel-muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+  td { font-family: var(--font-mono); }
+  td:first-child { font-family: var(--font-body); }
+  tr.gap td { color: var(--panel-muted); }
+
+  .rules { color: var(--muted); font-size: .85rem; line-height: 1.5; margin: 0; max-width: 65ch; }
+  .rules b { color: var(--fg); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <svg class="beetle" viewBox="0 0 80 80" role="img" aria-label="Green beetle seen from above">
+      <path class="limb" d="M26 34 L10 26 M26 44 L8 46 M28 56 L12 68 M54 34 L70 26 M54 44 L72 46 M52 56 L68 68"/>
+      <path class="limb" d="M34 14 Q30 6 24 4 M46 14 Q50 6 56 4"/>
+      <ellipse class="head" cx="40" cy="17" rx="9" ry="7"/>
+      <path class="pronotum" d="M29 24 Q40 19 51 24 L50 32 Q40 35 30 32 Z"/>
+      <path class="shell-l" d="M40 33 L40 72 C24 72 21 52 24 40 C26 34 33 32 40 33 Z"/>
+      <path class="shell-r" d="M40 33 L40 72 C56 72 59 52 56 40 C54 34 47 32 40 33 Z"/>
+      <path class="sheen" d="M29 42 C29 38 33 36 36 37 C33 40 32 46 33 52 C30 50 29 46 29 42 Z"/>
+      <path class="seam" d="M40 33 L40 72"/>
+    </svg>
+    <div>
+      <h1>Scute Swarm Counter</h1>
+      <p class="sub">Landfall copies with Yarok triggers, worked out for you.</p>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="counter">
+      <label for="swarms">Scute Swarms you control</label>
+      <div class="stepper">
+        <button type="button" data-target="swarms" data-step="-1" aria-label="One fewer Scute Swarm">&minus;</button>
+        <input id="swarms" type="number" inputmode="numeric" min="1" max="999" value="10">
+        <button type="button" data-target="swarms" data-step="1" aria-label="One more Scute Swarm">+</button>
+      </div>
+      <span class="hint">Copies already on the battlefield.</span>
+    </div>
+    <div class="counter">
+      <label for="yaroks">Yarok effects</label>
+      <div class="stepper">
+        <button type="button" data-target="yaroks" data-step="-1" aria-label="One fewer Yarok effect">&minus;</button>
+        <input id="yaroks" type="number" inputmode="numeric" min="0" max="20" value="1">
+        <button type="button" data-target="yaroks" data-step="1" aria-label="One more Yarok effect">+</button>
+      </div>
+      <span class="hint">Each one adds one extra trigger per Swarm.</span>
+    </div>
+    <div class="counter">
+      <label for="lands">Lands entering</label>
+      <div class="stepper">
+        <button type="button" data-target="lands" data-step="-1" aria-label="One fewer land">&minus;</button>
+        <input id="lands" type="number" inputmode="numeric" min="1" max="40" value="1">
+        <button type="button" data-target="lands" data-step="1" aria-label="One more land">+</button>
+      </div>
+      <span class="hint">Lands put onto the battlefield this turn.</span>
+    </div>
+  </div>
+
+  <fieldset class="mode">
+    <legend>How do the lands enter?</legend>
+    <div class="seg">
+      <label for="mode-seq">
+        <input type="radio" name="mode" id="mode-seq" value="seq" checked>
+        <span class="t">One at a time</span>
+        <span class="d">Land drops. Each land sees the Swarms made by the last.</span>
+      </label>
+      <label for="mode-sim">
+        <input type="radio" name="mode" id="mode-sim" value="sim">
+        <span class="t">All at once</span>
+        <span class="d">Ramp or fetch effects. Triggers are counted once.</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <button type="button" class="go" id="go">Swarm! (Calculate)</button>
+
+  <section class="result" id="result" aria-live="polite">
+    <p class="eyebrow">New total</p>
+    <p class="total" id="total">30</p>
+    <p class="added" id="added">(+20 Swarms)</p>
+    <p class="stale-note" id="stale"></p>
+    <div class="ledger-wrap">
+      <table>
+        <thead><tr><th>Step</th><th>Triggers</th><th>Swarms after</th></tr></thead>
+        <tbody id="ledger"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="rules">
+    <b>The maths.</b> Every land triggers every Swarm, and each Yarok effect adds one more trigger, so a Swarm triggers <b>1 + Yaroks</b> times per land. Each trigger makes one copy. This assumes you already control 20 or more Insects, so every trigger makes a Scute Swarm copy and not a 1/1 Insect token.
+  </p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) {
+    try { return n.toLocaleString('en-GB'); } catch (e) { return n.toString(); }
+  };
+
+  function readInt(id) {
+    var el = $(id);
+    var min = parseInt(el.min, 10), max = parseInt(el.max, 10);
+    var v = parseInt(el.value, 10);
+    if (isNaN(v)) v = min;
+    v = Math.min(max, Math.max(min, v));
+    el.value = v;
+    return v;
+  }
+
+  function markStale() {
+    $('result').classList.add('stale');
+    $('stale').textContent = 'Inputs changed. Press Swarm! to update.';
+  }
+
+  document.querySelectorAll('.stepper button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var el = $(b.dataset.target);
+      var cur = parseInt(el.value, 10);
+      if (isNaN(cur)) cur = parseInt(el.min, 10);
+      el.value = cur + parseInt(b.dataset.step, 10);
+      readInt(b.dataset.target);
+      markStale();
+    });
+  });
+  document.querySelectorAll('.stepper input').forEach(function (i) {
+    i.addEventListener('input', markStale);
+    i.addEventListener('change', function () { readInt(i.id); });
+  });
+  document.querySelectorAll('input[name="mode"]').forEach(function (r) {
+    r.addEventListener('change', markStale);
+  });
+
+  function row(a, b, c, gap) {
+    var tr = document.createElement('tr');
+    if (gap) tr.className = 'gap';
+    [a, b, c].forEach(function (t) {
+      var td = document.createElement('td');
+      td.textContent = t;
+      tr.appendChild(td);
+    });
+    return tr;
+  }
+
+  function calculate() {
+    var s = readInt('swarms'), y = readInt('yaroks'), l = readInt('lands');
+    var simultaneous = $('mode-sim').checked;
+    var start = BigInt(s), mult = BigInt(1 + y), lands = BigInt(l);
+    var total = start;
+    var ledger = $('ledger');
+    ledger.textContent = '';
+
+    if (simultaneous) {
+      var triggers = start * lands * mult;
+      total = start + triggers;
+      ledger.appendChild(row(l + (l === 1 ? ' land' : ' lands') + ' together', fmt(triggers), fmt(total)));
+    } else {
+      var rows = [];
+      for (var i = 1; i <= l; i++) {
+        var t = total * mult;
+        total += t;
+        rows.push([ 'Land ' + i, fmt(t), fmt(total) ]);
+      }
+      if (rows.length > 10) {
+        rows.slice(0, 8).forEach(function (r) { ledger.appendChild(row(r[0], r[1], r[2])); });
+        ledger.appendChild(row('…', '', '', true));
+        var last = rows[rows.length - 1];
+        ledger.appendChild(row(last[0], last[1], last[2]));
+      } else {
+        rows.forEach(function (r) { ledger.appendChild(row(r[0], r[1], r[2])); });
+      }
+    }
+
+    var added = total - start;
+    var totalText = fmt(total);
+    var totalEl = $('total');
+    totalEl.textContent = totalText;
+    totalEl.classList.toggle('long', totalText.length > 11);
+    $('added').textContent = '(+' + fmt(added) + (added === 1n ? ' Swarm)' : ' Swarms)');
+    $('result').classList.remove('stale');
+    $('stale').textContent = '';
+  }
+
+  $('go').addEventListener('click', calculate);
+  calculate();
+})();
+</script>
+
+</body></html>
